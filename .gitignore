@@ -1,0 +1,24 @@
+# Storymatic — ce qui ne part JAMAIS sur GitHub : les données de la personne qui s'en sert
+MON-PROFIL/
+PROJETS/
+IDENTITES/
+GIFS/
+CACHE/
+A POSTER/
+MES CAPTURES/
+MES VIDEOS/
+MES STICKERS/
+BANQUE-PROMPTS/
+SAUVEGARDES/
+LANCEUR/profil-navigateur/
+reglages.json
+_page-*.html
+_fcm-page-*.html
+*.log
+.claude/
+node_modules/
+.DS_Store
+Thumbs.db
+MOTEUR/
+_RELEASES/
+VERSION.json

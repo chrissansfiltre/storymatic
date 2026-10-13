@@ -1,0 +1,19 @@
+/* Storymatic — l'éditeur de stories (/editeur) : seulement les stories d'un jour et la DA Story. */
+/* deux écrans, pas un de plus (app.js ramène à « Ma semaine » pour tout le reste) */
+main > section.step:not(#step-parcours):not(#step-das) { display: none !important; }
+/* le parcours d'un jour : pas de colonne de résumé à droite (le but, la DA, les images viennent de la semaine) — le contenu prend la place */
+.pg-recap { display: none !important; }
+.pg { grid-template-columns: 220px minmax(0, 1fr) !important; }
+@media (max-width: 1100px) { .pg { grid-template-columns: 200px minmax(0, 1fr) !important; } }
+.brand .brand-mot { font-family: "Sora", system-ui, sans-serif; font-weight: 800; letter-spacing: -.04em; }
+.brand .brand-mot b { background: linear-gradient(90deg, #FDAB3D 0%, #F44B7B 52%, #D23FE0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; padding-right: .1em; margin-right: -.1em; }
+.brand .brand-studio { margin-left: .5em; }
+/* « ← Ma semaine », toujours à portée de main */
+.sc-retour { position: fixed; left: 16px; bottom: 16px; z-index: 9999; padding: 11px 18px; border-radius: 999px; background: linear-gradient(90deg, #FDAB3D 0%, #F44B7B 52%, #D23FE0 100%); color: #0b0b0d;
+  font: 800 14px/1 Inter, system-ui, sans-serif; text-decoration: none; box-shadow: 0 10px 30px -10px rgba(244,75,123,.85); }
+.sc-retour:hover { filter: brightness(1.08); }
+
+/* le logo (7 oct. 2026) */
+.brand .brand-pms { display: inline-flex; align-items: center; gap: 9px; }
+.brand .sm-logo { width: 30px; height: 30px; object-fit: contain; flex: none; }
+.sm-logo-grand { display: block; width: 72px; height: 72px; margin: 0 auto 14px; object-fit: contain; }

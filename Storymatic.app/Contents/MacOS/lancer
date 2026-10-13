@@ -1,0 +1,86 @@
+#!/bin/bash
+# STORYMATIC — l'application Mac.
+#
+# Double-clic : démarre le moteur (serveur.js) en arrière-plan, ouvre Storymatic dans sa propre fenêtre (Chrome, sinon
+# Edge, sinon le navigateur que la page Installation a posé, avec un profil à lui), et arrête le moteur quand cette
+# fenêtre se ferme. Sans aucun de ces navigateurs, Storymatic s'ouvre dans le navigateur par défaut.
+#
+# Ce fichier vit dans Storymatic.app/Contents/MacOS/, à la racine du dossier de Storymatic : ne pas déplacer
+# l'application hors du dossier.
+
+ICI="$(cd "$(dirname "$0")" && pwd)"
+STUDIO="$(cd "$ICI/../../.." && pwd)"
+URL="http://127.0.0.1:4351"
+JOURNAL="$HOME/Library/Logs/Storymatic.log"
+
+# Claude Code (~/.local/bin), et un Node.js de l'ordinateur en secours.
+export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+
+dialogue() {
+  osascript -e "display dialog \"$1\" with title \"Storymatic\" buttons {\"OK\"} default button 1 with icon caution" >/dev/null 2>&1
+}
+repond() { curl -s -m 2 -o /dev/null "$URL/api/etat"; }
+
+# 0. Ouverte depuis un dossier temporaire (« translocation ») : Storymatic est encore en quarantaine.
+case "$ICI" in
+  */AppTranslocation/*)
+    dialogue "Pour la première ouverture, double-cliquez sur « OUVRIR STORYMATIC.command », dans le dossier de Storymatic. Ensuite, cette application s'ouvrira normalement."
+    exit 1 ;;
+esac
+if [ ! -f "$STUDIO/MOTEUR/.debloque" ]; then
+  xattr -dr com.apple.quarantine "$STUDIO" 2>/dev/null
+  chmod +x "$STUDIO"/MOTEUR/node/*/bin/node "$STUDIO"/*.command 2>/dev/null
+  mkdir -p "$STUDIO/MOTEUR" && date > "$STUDIO/MOTEUR/.debloque"
+fi
+
+# Node.js : celui qui est livré (MOTEUR/node, Apple Silicon ou Intel), sinon celui de l'ordinateur.
+# La VRAIE puce : sous Rosetta, « uname -m » répond x86_64 sur un Mac à puce Apple ; hw.optional.arm64 vaut 1 quand même.
+NATIF=""
+if [ "$(sysctl -in hw.optional.arm64 2>/dev/null)" = "1" ] && [ -x "$STUDIO/MOTEUR/node/darwin-arm64/bin/node" ]; then NODE="$STUDIO/MOTEUR/node/darwin-arm64/bin/node"; NATIF="arch -arm64"
+elif [ -x "$STUDIO/MOTEUR/node/darwin-x64/bin/node" ]; then NODE="$STUDIO/MOTEUR/node/darwin-x64/bin/node"
+else NODE="$(command -v node)"; fi
+
+# 1. Le moteur, sauf s'il tourne déjà.
+MOTEUR=""
+if ! repond; then
+  if [ -z "$NODE" ]; then
+    dialogue "Le moteur de Storymatic est introuvable (dossier MOTEUR incomplet). Téléchargez à nouveau Storymatic et décompressez-le en entier."
+    exit 1
+  fi
+  if [ ! -f "$STUDIO/serveur.js" ]; then
+    dialogue "Le dossier de Storymatic est introuvable. L'application doit rester à la racine du dossier de Storymatic."
+    exit 1
+  fi
+  cd "$STUDIO" || exit 1
+  mkdir -p "$HOME/Library/Logs"
+  nohup $NATIF "$NODE" serveur.js >"$JOURNAL" 2>&1 &
+  MOTEUR=$!
+  disown "$MOTEUR" 2>/dev/null
+  for _ in $(seq 1 40); do repond && break; sleep 0.5; done
+  if ! repond; then
+    kill "$MOTEUR" 2>/dev/null
+    dialogue "Le moteur de Storymatic n'a pas démarré. Le détail est dans ~/Library/Logs/Storymatic.log."
+    exit 1
+  fi
+fi
+
+# 2. La fenêtre de Storymatic.
+NAV=""
+for c in "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+         "$HOME/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+         "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge" \
+         "$STUDIO/MOTEUR/navigateur/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing" \
+         "$STUDIO/MOTEUR/navigateur/chrome-mac-x64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"; do
+  if [ -x "$c" ]; then NAV="$c"; break; fi
+done
+if [ -z "$NAV" ]; then
+  # aucun navigateur à piloter : le navigateur par défaut, et le moteur reste en marche
+  open "$URL"
+  exit 0
+fi
+mkdir -p "$STUDIO/LANCEUR/profil-navigateur"
+"$NAV" --app="$URL" --window-size=1440,920 --user-data-dir="$STUDIO/LANCEUR/profil-navigateur" --no-first-run --no-default-browser-check >/dev/null 2>&1
+
+# 3. La fenêtre est fermée : on arrête le moteur, seulement si c'est nous qui l'avons démarré.
+if [ -n "$MOTEUR" ]; then kill "$MOTEUR" 2>/dev/null; fi
+exit 0

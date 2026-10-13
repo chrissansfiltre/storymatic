@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storymatic — Éditeur de stories</title>
+<script>window.STORYMATIC = true;   /* Storymatic : l'éditeur ne montre que les stories (app.js, parcours.js, da.js, installation.js le lisent) */
+/* Rien ne s'affiche tant que Storymatic n'a pas ouvert SON écran (un jour ou la DA Story) : seulement « Storymatic · Ouverture… »
+   (7 oct. 2026 : pendant quelques secondes, on voyait un autre accueil). Filet : 15 s sans écran → Ma semaine. */
+document.documentElement.classList.add("sm-attente");
+setTimeout(() => { if (document.documentElement.classList.contains("sm-attente") && window.smVersSemaine) window.smVersSemaine(); }, 15000);</script>
+<style>
+#sm-chargement { display: none; }
+html.sm-attente body > *:not(#sm-chargement) { visibility: hidden !important; }
+html.sm-attente #sm-chargement { display: grid; place-items: center; position: fixed; inset: 0; z-index: 99999; background: linear-gradient(165deg, #1A1029, #120B1D 50%, #170B22); }
+#sm-chargement div { text-align: center; color: #F4F4F5; font: 800 34px/1 Sora, system-ui, sans-serif; letter-spacing: -.04em; }
+#sm-chargement b { padding-right: .1em; margin-right: -.1em; background: linear-gradient(90deg, #FDAB3D 0%, #F44B7B 52%, #D23FE0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
+#sm-chargement small { display: block; margin-top: 14px; font: 600 13px/1 Inter, system-ui, sans-serif; letter-spacing: .02em; color: #707079; }
+</style>
+<!-- Storymatic — l'éditeur de stories (/editeur) : les stories d'un jour, et la DA Story. On y entre par « Ma semaine ». -->
+<link rel="icon" type="image/png" sizes="16x16" href="storymatic-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="storymatic-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="storymatic-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="storymatic-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="storymatic-512.png">
+<link rel="apple-touch-icon" sizes="192x192" href="storymatic-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B0B0D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Poppins:wght@500;600;700&family=Sora:wght@800&display=swap">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="editeur-stories.css">
+</head>
+<body>
+<div id="sm-chargement"><div><img class="sm-logo-grand" src="logo.png" alt="">Story<b>matic</b><small>Ouverture…</small></div></div>
+<div class="fond" aria-hidden="true"></div>
+
+<header class="topbar">
+  <button type="button" class="brand" id="brand" title="Revenir à Ma semaine">
+    <span class="brand-pms" id="brand-pms">
+      <img class="sm-logo" src="logo.png" alt=""><span class="brand-mot">Story<b>matic</b></span><span class="brand-studio">Éditeur</span>
+    </span>
+  </button>
+  <div class="topbar-droite">
+    <div class="etat-choix" id="etat-choix">
+      <button type="button" class="etat" id="etat-claude" aria-haspopup="menu" aria-expanded="false"></button>
+      <div class="menu-projets menu-modeles" id="menu-modeles" hidden></div>
+    </div>
+  </div>
+</header>
+
+<!-- Ne s'affiche que si serveur.js a changé depuis le lancement -->
+<div class="bandeau-perime" id="bandeau-perime" hidden>
+  <b>Storymatic a été mis à jour.</b> Fermez-le et rouvrez-le : tant qu'il tourne sur l'ancienne version, certaines images
+  peuvent ne pas apparaître.
+</div>
+
+<main id="main">
+  <!-- Les stories d'un jour (le plan, puis les stories) : dessiné par js/parcours.js -->
+
+
+  <section class="step" id="step-parcours" hidden>
+    <div class="pg" id="pg">
+      <nav class="pg-fil" id="pg-fil" aria-label="Les étapes"></nav>
+
+      <div class="pg-centre">
+        <p class="pg-sur" id="pg-sur"></p>
+        <h1 class="pg-titre" id="pg-titre"></h1>
+        <p class="pg-lead" id="pg-lead"></p>
+        <div class="pg-corps" id="pg-corps"></div>
+        <p class="gen-alerte" id="pg-erreur" hidden></p>
+        <div class="pg-pied">
+          <span class="pg-pied-note" id="pg-pied-note"></span>
+          <button type="button" class="pg-btn pg-btn-fantome" id="pg-prec">← Retour</button>
+          <button type="button" class="pg-btn" id="pg-passer" hidden>Passer cette étape</button>
+          <button type="button" class="pg-btn pg-btn-go" id="pg-suiv">Continuer</button>
+        </div>
+      </div>
+
+      <aside class="pg-recap">
+        <h2 class="pg-recap-h" id="pg-recap-h"></h2>
+        <p class="pg-recap-p" id="pg-recap-p"></p>
+        <div class="pg-mosaique" id="pg-mosaique"></div>
+        <div class="pg-recap-lignes" id="pg-recap-lignes"></div>
+        <p class="pg-recap-note" id="pg-recap-note"></p>
+      </aside>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- La DA Story : dessinée par js/da.js (et « Apprendre mon style », js/apprendre.js) -->
+  <section class="step" id="step-das" hidden>
+    <div id="dam"></div>
+  </section>
+
+
+
+
+</main>
+
+<!-- LE CHOIX D'UN RENDU — reprendre une image générée comme référence -->
+<div class="choix-rendu" id="choix-rendu" hidden>
+  <div class="visionneuse-voile" id="choix-rendu-voile"></div>
+  <div class="choix-rendu-cadre">
+    <div class="choix-rendu-tete">
+      <div>
+        <h2 class="choix-rendu-h2">Importer un rendu</h2>
+        <p class="choix-rendu-sous" id="choix-rendu-sous">Les images générées par le studio, les plus récentes en premier.</p>
+      </div>
+      <button type="button" class="atl-prep-fermer" id="choix-rendu-fermer" title="Fermer" aria-label="Fermer">×</button>
+    </div>
+    <div class="choix-rendu-grille" id="choix-rendu-grille"></div>
+    <p class="choix-rendu-vide" id="choix-rendu-vide" hidden>Aucune image générée pour l'instant.</p>
+  </div>
+</div>
+
+<!-- LA VISIONNEUSE — un rendu en grand, par-dessus l'écran, sans quitter le studio -->
+<div class="visionneuse" id="visionneuse" hidden>
+  <div class="visionneuse-voile" id="visionneuse-voile"></div>
+  <figure class="visionneuse-cadre">
+    <div class="visionneuse-media" id="visionneuse-media"></div>
+    <figcaption class="visionneuse-pied">
+      <span class="visionneuse-legende" id="visionneuse-legende"></span>
+      <code class="visionneuse-fichier" id="visionneuse-fichier"></code>
+      <button type="button" class="btn-mini" id="visionneuse-fermer">Fermer</button>
+    </figcaption>
+  </figure>
+  <button type="button" class="visionneuse-x" id="visionneuse-x" title="Fermer (Échap)" aria-label="Fermer">×</button>
+</div>
+
+<!-- LA LOUPE — une slide en grand : on y corrige le texte à la main, ou on en
+     demande une autre version. Ouverte par js/parcours.js. -->
+<div class="pg-loupe" id="pg-loupe" hidden>
+  <div class="visionneuse-voile" id="pg-loupe-voile"></div>
+  <div class="pg-loupe-cadre">
+    <!-- Les calques de la slide, du dessus au dessous : dessinés par js/editeur-slide.js -->
+    <div class="pg-calques" id="pg-calques"></div>
+    <div class="pg-loupe-scene" id="pg-loupe-scene"></div>
+    <div class="pg-loupe-outils">
+      <div class="pg-loupe-tete">
+        <h2 class="pg-loupe-h" id="pg-loupe-h"></h2>
+        <button type="button" class="atl-prep-fermer" id="pg-loupe-fermer" title="Fermer (Échap)" aria-label="Fermer">×</button>
+      </div>
+      <div class="pg-loupe-bloc">
+        <h3>Modifier à la main</h3>
+        <!-- Le panneau de l'éditeur, dessiné par js/editeur-slide.js -->
+        <div class="pg-ed" id="pg-ed"></div>
+        <button type="button" class="pg-btn pg-btn-go" id="pg-loupe-enregistrer" disabled>Enregistrer les modifications</button>
+      </div>
+      <div class="pg-loupe-bloc">
+        <h3>Demander une autre version</h3>
+        <p>Dites ce qui ne va pas : « titre plus gros », « fond clair », « l'image en plein cadre ». Claude la refait seule, dans la même série.</p>
+        <textarea id="pg-loupe-remarque" rows="3" placeholder="Ce que vous voulez changer…"></textarea>
+        <button type="button" class="pg-btn" id="pg-loupe-refaire">Refaire cette slide</button>
+      </div>
+      <p class="gen-alerte" id="pg-loupe-erreur" hidden></p>
+    </div>
+  </div>
+</div>
+
+
+<script src="js/app.js"></script>
+<script src="js/parcours.js"></script>
+<script src="js/editeur-slide.js"></script>
+<script src="js/polices.js"></script>
+<script src="js/da.js"></script>
+<script src="js/apprendre.js"></script>
+<script src="js/stickers.js"></script>
+<script src="js/editeur-stories.js"></script>
+</body>
+</html>

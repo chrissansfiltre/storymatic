@@ -1,0 +1,2385 @@
+/* ============================================================
+   STORYMATIC
+   Interface. Aucune dépendance, aucun build.
+   ============================================================ */
+
+:root {
+  --fond:        #140D20;
+  --panneau:     #1D1430;
+  --panneau-2:   #251A3B;
+  --bord:        #2F2346;
+  --bord-clair:  #3D2F58;
+  --texte:       #F2F2F2;
+  --texte-2:     #B4A9C7;
+  --texte-3:     #7F7397;
+  --accent:      #F44B7B;
+  --pms-grad:    linear-gradient(90deg, #FDAB3D 0%, #F44B7B 52%, #D23FE0 100%);
+  --titres:      "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* La police du logo : Sora 800, toujours resserrée à -.05em. Elle ne sert
+     qu'au logo — le reste de l'interface garde Poppins. */
+  --logo:        "Sora", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --alerte:      #FF6B6B;
+  --attention:   #FFB84D;
+  --ok:          #4ECB8F;
+  --rayon:       14px;
+}
+
+* { box-sizing: border-box; }
+
+/* Un display: flex ne doit jamais l'emporter sur l'attribut hidden. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Barre du haut ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--bord);
+  background: rgba(22, 14, 36, .9);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex; align-items: baseline; gap: 12px;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; color: inherit; text-align: left;
+}
+
+/* Le signe de l'en-tête : la taille est fixée en CSS (et non déduite de
+   l'image) pour que l'intro puisse mesurer sa cible avant le chargement. */
+.brand-pms { align-self: center; flex: none; }
+
+/* ---------- Structure ---------- */
+
+main { max-width: 1020px; margin: 0 auto; padding: 44px 24px 96px; }
+
+h1 { font-size: 30px; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 10px; font-weight: 650; }
+h2 { font-size: 16px; margin: 0 0 4px; font-weight: 600; letter-spacing: -.01em; }
+
+.lead { color: var(--texte-2); margin: 0 0 32px; max-width: 60ch; }
+
+/* ---------- Cartes de choix ---------- */
+
+/* Au survol, une ombre plutôt qu'un saut de 2 px : une carte qui bouge sous une souris posée sur son bord
+   la quitte, redescend, la retrouve… et scintille (2 oct. 2026 dans la formation). */
+
+/* La croix de suppression, en haut à droite de la carte, visible au survol. */
+
+/* La vignette de l'avatar, en tête de carte. */
+
+/* Les couleurs de l'avatar, en tête du texte de la carte : sous la
+   vignette, au-dessus du nom. Elles ne sont plus posées sur l'image, donc
+   ni voile ni ombre pour les décoller du visuel. */
+/* Le contour reste franc : sans lui, les teintes sombres de la charte
+   (Violet nuit #130F37, Bleu profond #0009CB) disparaissent sur le
+   panneau sombre. */
+.pastille {
+  width: 17px; height: 17px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,.22);
+}
+
+/* ---------- Formulaire ---------- */
+
+select, textarea, input[type="text"] {
+  width: 100%;
+  background: var(--panneau);
+  border: 1px solid var(--bord);
+  border-radius: 10px;
+  color: var(--texte);
+  font: inherit;
+  padding: 11px 13px;
+}
+
+select:focus, textarea:focus, input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+textarea { min-height: 96px; resize: vertical; line-height: 1.55; }
+
+/* ---------- Analyse du dialogue ---------- */
+
+/* ---------- Boutons ---------- */
+
+/* ---------- Résultat ---------- */
+
+.refs { margin: 0; padding-left: 22px; display: grid; gap: 9px; }
+.refs li { font-size: 14px; }
+
+.mesure { font-size: 13px; color: var(--texte-2); }
+
+/* Pendant que le prompt s'écrit. */
+@keyframes bat { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+
+.prompt {
+  margin: 0;
+  background: #0B0C13;
+  border: 1px solid var(--bord);
+  border-radius: 10px;
+  padding: 18px;
+  font: 12.5px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #C9CEE0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+/* ---------- Historique ---------- */
+
+.topbar-droite { display: flex; align-items: center; gap: 16px; }
+
+.btn-histo {
+  font: inherit; font-size: 13px; font-weight: 560;
+  background: transparent; color: var(--texte-2);
+  border: 1px solid var(--bord); border-radius: 99px;
+  padding: 6px 15px; cursor: pointer;
+  transition: color .12s, border-color .12s, background .12s;
+}
+.btn-histo:hover { color: var(--texte); border-color: var(--bord-clair); }
+.btn-histo.actif { color: #0E0F17; background: var(--texte); border-color: var(--texte); }
+.tag {
+  font-size: 11px; color: var(--texte-3);
+  border: 1px solid var(--bord); border-radius: 5px;
+  padding: 1px 6px;
+}
+
+.btn-mini {
+  font: inherit; font-size: 12.5px; font-weight: 560;
+  background: transparent; color: var(--texte-2);
+  border: 1px solid var(--bord-clair); border-radius: 8px;
+  padding: 6px 12px; cursor: pointer;
+}
+.btn-mini:hover { color: var(--texte); }
+.btn-mini-danger:hover { color: var(--alerte); border-color: rgba(255,107,107,.5); }
+
+/* Le savoir-faire appliqué : une information, pas un avertissement. */
+.savoir-faire {
+  background: rgba(244,75,123,.10);
+  border: 1px solid rgba(244,75,123,.30);
+  border-radius: 10px;
+  color: var(--texte-2); font-size: 13px; line-height: 1.55;
+  padding: 10px 14px; margin: 0 0 14px;
+}
+.savoir-faire b { color: var(--texte); }
+
+/* Un prompt trop long : impossible a manquer. */
+
+/* Un audio dans la galerie : pas d'image a montrer, donc un signe
+   et le lecteur, centres dans le cadre commun. */
+
+.btn-mini-fort:disabled { opacity: .6; cursor: default; }
+
+/* ---------- LA GALERIE DES RENDUS ---------- */
+
+/* Des colonnes qui s'ajustent : trois sur un grand ecran, une sur un
+   portable, sans palier intermediaire a ecrire. */
+
+/* Le media garde son cadre quel que soit son format : un 9:16 et un
+   carre se rangent alors sur la meme ligne sans desaligner la grille. */
+/* Un rattachement deduit apres coup : l'information compte, mais elle ne
+   merite pas la couleur d'un avertissement. */
+/* Un lien parmi les boutons doit s'aligner comme eux. */
+
+/* Une carte qui part : elle s'efface avant de disparaitre, pour qu'on
+   voie laquelle a ete supprimee. */
+
+/* Le studio tourne sur du code dépassé : ça se voit tout de suite,
+   parce que le symptôme (des images qui manquent) n'a rien d'évident. */
+.bandeau-perime {
+  background: rgba(255, 184, 77, .12);
+  border-bottom: 1px solid rgba(255, 184, 77, .38);
+  color: var(--attention);
+  font-size: 13.5px; line-height: 1.55;
+  padding: 11px 26px;
+}
+.bandeau-perime b { color: #FFD08C; }
+
+/* ---------- Indicateur Claude Code ---------- */
+
+.btn-installer {
+  font-size: 12.5px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--bord); background: transparent; color: var(--texte-2);
+}
+.btn-installer:hover { color: inherit; border-color: var(--texte-3); }
+/* La pastille est un BOUTON : on clique dessus pour changer de modèle. */
+.etat-choix { position: relative; display: flex; }
+.etat {
+  font: inherit; font-size: 12.5px; color: var(--texte-3); display: flex; align-items: center; gap: 7px;
+  background: none; border: 0; padding: 4px 6px; border-radius: 9px;
+}
+button.etat:not(:disabled) { cursor: pointer; }
+button.etat:not(:disabled):hover { background: rgba(255,255,255,.05); }
+.etat-modele { color: var(--accent); font-weight: 600; }
+.etat-chev { color: var(--texte-3); font-size: 10px; margin-left: 1px; }
+button.etat:disabled .etat-chev { display: none; }
+.menu-modeles { width: 270px; }
+.menu-modeles-note { margin: 2px 4px 4px; padding: 0 6px; font-size: 11.5px; line-height: 1.45; color: var(--texte-3); }
+.etat.ok { color: var(--texte-2); }
+.etat.ko { color: var(--attention); }
+.pastille-ok, .pastille-ko { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.pastille-ok { background: var(--ok); box-shadow: 0 0 8px rgba(78,203,143,.6); }
+.pastille-ko { background: var(--attention); }
+
+/* ---------- Champ de demande ---------- */
+
+textarea#demande { min-height: 150px; font-size: 15px; line-height: 1.6; }
+textarea.manque { border-color: var(--alerte); }
+
+/* ---------- Choix des références ---------- */
+
+/* Le second niveau : plus discret que la section, mais assez marque pour
+   qu'on voie ou commence les desserts. */
+
+/* ---------- Chercher parmi les références ---------- */
+
+/* Le rappel de ce qui est coché : il reste en haut du bloc, donc sous les
+   yeux quand on a fait défiler cinquante vignettes. */
+
+/* Le numéro de chargement, sur la référence cochée elle-même. */
+
+/* ---------- Dépôt d'images ---------- */
+
+.depot {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  background: var(--panneau); border: 1px dashed var(--bord-clair);
+  border-radius: 12px; padding: 26px 20px; cursor: pointer; text-align: center;
+  transition: border-color .12s, background .12s;
+}
+.depot:hover { border-color: var(--accent); background: var(--panneau-2); }
+.depot.survol { border-color: var(--accent); background: var(--panneau-2); }
+
+/* ---------- Réglages en ligne ---------- */
+
+/* ---------- Attente ---------- */
+
+.barre {
+  height: 3px; background: var(--panneau-2); border-radius: 99px;
+  overflow: hidden; margin: 26px 0 12px; max-width: 420px;
+}
+.barre span {
+  display: block; height: 100%; width: 38%; border-radius: 99px;
+  background: var(--pms-grad);
+  animation: glisse 1.5s ease-in-out infinite;
+}
+@keyframes glisse {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(360%); }
+}
+
+/* ============================================================
+   LE DECOR
+   Un quadrillage technique, allume par un halo aux couleurs du
+   signe. Calque fixe, jamais cliquable, derriere toute l'interface.
+   ============================================================ */
+
+.fond {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Le quadrillage se pose PAR-DESSUS le halo, et s'efface vers le bas. */
+.fond::after {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right,  rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 54px 54px;
+  -webkit-mask-image: radial-gradient(125% 95% at 50% -10%, #000 0%, rgba(0,0,0,.6) 48%, transparent 88%);
+          mask-image: radial-gradient(125% 95% at 50% -10%, #000 0%, rgba(0,0,0,.6) 48%, transparent 88%);
+}
+
+/* ============================================================
+   LE LANCEMENT
+   Le signe s'ouvre en grand au centre, puis va se ranger a sa
+   place dans le hero. Le trajet exact est calcule en JS.
+   ============================================================ */
+
+.intro {
+  position: fixed; inset: 0; z-index: 60;
+  display: grid; place-items: center;
+  cursor: pointer;
+}
+
+/* Le fond du lancement, sur son propre calque : lui seul se fond. */
+/* Le signe du lancement, mot par mot (surchargé plus bas en texte). Le cadre a les proportions du mot
+   (800 x 264) ; chaque lettre est posée à sa place mesurée dans le PNG. */
+.intro.parti { pointer-events: none; }
+
+/* La nappe de pixels de l'onde : elle couvre tout l'écran, sous le
+   verrouillage, qui s'allume par-dessus dans son sillage.
+
+   width/height à 100 % sont INDISPENSABLES, et pas décoratifs : un <canvas>
+   est un élément remplacé, donc avec width:auto il garde sa taille
+   intrinsèque — ses attributs width/height, c'est-à-dire la taille en
+   pixels physiques — et inset:0 ne l'étire pas. Sur un écran à 1,75, le
+   canevas faisait 1,75 fois la fenêtre et l'onde partait 1,75 fois trop
+   bas et trop à droite. Le canevas du bouton « Générer » les a toujours eus. */
+
+/* Le curseur qui vient déclencher l'onde. Sa pointe est calée sur le point
+   visé : le dessin a sa pointe en haut à gauche, on rattrape les deux pixels.
+   Il part de dehors — la fenêtre découpe ce qui dépasse — donc on le voit
+   vraiment entrer dans le cadre. */
+/* Le petit anneau du clic, avant celui de l'onde. */
+
+/* L'entree en cascade du texte du hero, declenchee par .demarre. */
+.entre { opacity: 0; }
+@keyframes monte {
+  from { opacity: 0; transform: translateY(14px) }
+  to   { opacity: 1; transform: none }
+}
+
+/* ============================================================
+   LE HERO
+   ============================================================ */
+
+.hero { position: relative; padding: 18px 0 34px; }
+
+/* Pendant l'intro, la place dans l'en-tête est tenue mais le logo y reste
+   invisible : c'est celui de l'intro qui vient l'occuper. */
+
+/* ---------- La barre de chiffres ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .entre { opacity: 1 }
+}
+
+/* ============================================================
+   L'ACCUEIL — suite
+   ============================================================ */
+
+/* Les trois derniers prompts, repris d'un clic. */
+
+.dernier {
+  display: flex; align-items: stretch; gap: 0; text-align: left;
+  background: var(--panneau); border: 1px solid var(--bord);
+  border-radius: 11px; overflow: hidden;
+  color: inherit; font: inherit; padding: 0; cursor: pointer;
+  transition: border-color .14s, background .14s;
+}
+.dernier:hover { border-color: var(--bord-clair); background: var(--panneau-2); }
+
+/* Les trois étapes, montrées seulement quand l'historique est vide. */
+
+@media (max-width: 620px) {
+  main { padding: 32px 18px 72px; }
+  h1 { font-size: 24px; }
+  .topbar { padding: 14px 18px; }
+  .fond::after { background-size: 40px 40px; }
+}
+
+/* La note qui explique le modèle de génération choisi. */
+
+/* ============================================================
+   LA GÉNÉRATION DIRECTE
+   Le seul endroit de l'application qui dépense de l'argent.
+   Le coût est donc annoncé avant, et la confirmation obligatoire.
+   ============================================================ */
+
+/* La confirmation */
+
+/* L'attente */
+
+/* Le rendu */
+
+/* Les réglages modifiables du panneau de génération. */
+
+/* L'avertissement quand les réglages s'écartent de ceux du prompt. */
+.gen-alerte {
+  margin: 0 0 16px; padding: 11px 14px;
+  border: 1px solid rgba(255,184,77,.4); border-radius: 10px;
+  background: var(--panneau);
+  color: var(--texte-2); font-size: 13px; line-height: 1.55;
+}
+.gen-alerte b { color: var(--attention); font-weight: 620; }
+
+/* ============================================================
+   L'ATELIER
+   ------------------------------------------------------------
+   Un écran d'application, sans défilement de page : les
+   conversations à gauche, le fil au centre avec le composeur
+   épinglé en bas, la préparation de la demande à droite. Le
+   volet de génération vient par-dessus, à droite.
+   ============================================================ */
+
+:root {
+  --topbar-h: 64px;
+  --conv-w:   268px;
+  --prep-w:   356px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ============================================================
+   À GAUCHE — les conversations
+   ============================================================ */
+
+/* min-width:0 et overflow:hidden : sans eux, un titre long élargit la colonne. */
+
+/* ============================================================
+   AU CENTRE — le fil
+   ============================================================ */
+.fil { display: grid; gap: 18px; }
+
+/* L'accueil du fil vide. */
+
+/* ---------- Les messages ---------- */
+
+.msg { display: flex; gap: 12px; align-items: flex-start; }
+
+.msg-signe {
+  width: 26px; height: 26px; flex: none; margin-top: 2px;
+  border-radius: 50%; display: grid; place-items: center;
+  font-size: 11px; font-weight: 700;
+  background: var(--panneau-2); border: 1px solid var(--bord);
+  color: var(--texte-3);
+}
+.msg-signe svg { width: 17px; height: 17px; display: block; }
+
+/* L'étoile de Claude, dans son orange à lui — volontairement distinct de
+   l'orange du studio, pour qu'on lise « c'est lui qui parle » et non « c'est
+   le studio ». Le tracé suit le contour réel du logo, relevé sur l'image :
+   pas de contour ajouté, il épaissirait les lames. */
+.signe-claude { fill: #D97757; }
+
+/* La silhouette du créateur : un trait, pas un aplat. L'ancien rond blanc
+   plein pesait plus lourd que le message lui-même. */
+.signe-moi {
+  fill: none; stroke: currentColor; stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.msg-bulle {
+  max-width: 76ch; min-width: 0;
+  padding: 12px 16px; border-radius: 14px;
+  font-size: 14.5px; line-height: 1.62;
+  border: 1px solid var(--bord);
+  background: var(--panneau);
+}
+.msg-bulle > *:first-child { margin-top: 0 }
+.msg-bulle > *:last-child  { margin-bottom: 0 }
+.msg-bulle p { margin: 0 0 9px }
+.msg-bulle ul, .msg-bulle ol { margin: 0 0 9px; padding-left: 20px }
+.msg-bulle li { margin-bottom: 3px }
+.msg-bulle h2, .msg-bulle h3 {
+  font-size: 14.5px; font-weight: 650; margin: 14px 0 6px; letter-spacing: 0;
+}
+.msg-bulle strong { color: #fff; font-weight: 640 }
+.msg-bulle code {
+  font-family: var(--mono);
+  font-size: 12.8px; background: rgba(255,255,255,.06);
+  border-radius: 5px; padding: 1px 5px;
+}
+/* Pendant l'écriture, le prompt arrive dans un bloc de code : il défile
+   dans sa boîte au lieu d'étirer la conversation. */
+.msg-bulle pre {
+  background: #0B0C13; border: 1px solid var(--bord); border-radius: 9px;
+  padding: 12px 14px; overflow: auto; margin: 0 0 9px; max-height: 300px;
+}
+.msg-bulle pre code { background: none; padding: 0; font-size: 12.6px }
+.msg-bulle em { color: var(--texte-2) }
+
+/* Une bulle qui porte un prompt prend toute la largeur du fil. */
+
+/* Les trois points, pendant que Claude Code réfléchit. */
+.msg-attente { display: flex; gap: 5px; align-items: center; height: 22px }
+.msg-attente span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--texte-3);
+  animation: respire 1.25s ease-in-out infinite;
+}
+.msg-attente span:nth-child(2) { animation-delay: .16s }
+.msg-attente span:nth-child(3) { animation-delay: .32s }
+@keyframes respire {
+  0%, 60%, 100% { opacity: .28; transform: translateY(0) }
+  30%           { opacity: 1;   transform: translateY(-3px) }
+}
+
+/* Ce que le message emportait : références cochées, images, durée. */
+
+/* Le resserrage en cours, pendant la rédaction. */
+
+/* Ce qui suit le prompt : les lignes « NOTE : ». */
+
+/* ---------- Une carte de prompt dans le fil ---------- */
+
+/* L'aperçu : les premières lignes, qui s'effacent vers le bas. */
+
+/* Le prompt entier, une fois déplié. */
+
+/* ---------- Le composeur, épinglé en bas ---------- */
+
+.composeur {
+  display: flex; align-items: flex-end; gap: 10px;
+  background: var(--panneau); border: 1px solid var(--bord-clair);
+  border-radius: 16px; padding: 8px 8px 8px 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  transition: border-color .14s, box-shadow .14s;
+}
+.composeur:focus-within { border-color: var(--accent); box-shadow: 0 12px 40px rgba(0,0,0,.35), 0 0 0 3px rgba(244,75,123,.15); }
+.composeur textarea {
+  border: 0; background: none; padding: 7px 0; min-height: 0;
+  max-height: 190px; resize: none; line-height: 1.55; font-size: 15px;
+}
+.composeur textarea:focus { outline: none; border: 0; }
+.composeur textarea::placeholder { color: var(--texte-3); }
+
+/* ============================================================
+   À DROITE — la préparation
+   ============================================================ */
+.atl-prep-fermer {
+  display: none; width: 30px; height: 30px; border-radius: 9px; flex: none;
+  background: transparent; border: 1px solid var(--bord);
+  color: var(--texte-2); font-size: 19px; line-height: 1; cursor: pointer;
+}
+.atl-prep-fermer:hover { color: var(--texte); border-color: var(--bord-clair); }
+
+/* Une section repliable. */
+
+/* --- l'avatar --- */
+
+/* --- les références, en version compacte --- */
+/* minmax(0, 1fr) et min-width: 0 : sans eux, un résumé long en nowrap
+   élargit la ligne au-delà de la colonne et cache le numéro. */
+
+/* --- les images déposées --- */
+
+/* --- les réglages --- */
+
+/* ============================================================
+   LE VOLET DE GÉNÉRATION
+   ============================================================ */
+
+/* Le voile des panneaux latéraux sur petit écran. */
+
+/* ============================================================
+   PETITS ÉCRANS
+   ============================================================ */
+
+@media (max-width: 1280px) { :root { --prep-w: 324px; --conv-w: 240px; } }
+
+@media (max-width: 820px) {
+  .msg-bulle { max-width: none; }
+}
+
+/* ============================================================
+   LES RENDUS DANS LA CONVERSATION
+   Sous chaque prompt : le suivi de la génération, puis ce qu'il
+   a produit — le média en grand, une ligne discrète dessous.
+   ============================================================ */
+
+/* ============================================================
+   LES BARRES DE DÉFILEMENT
+   Fines, aux couleurs du studio, sans piste apparente. Les
+   grises par défaut font tache sur un fond sombre.
+   ============================================================ */
+
+* { scrollbar-width: thin; scrollbar-color: rgba(244,75,123,.45) transparent; }
+
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-corner { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(244,75,123,.38);
+  border-radius: 99px;
+  border: 2px solid transparent;          /* l'écart avec le bord */
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background-color: rgba(210,63,224,.70); }
+
+/* Dans un prompt, la poignée porte un dégradé de l'orange du studio. */
+.prompt::-webkit-scrollbar-thumb, .msg-bulle pre::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FDAB3D, #F44B7B, #D23FE0);
+  background-clip: padding-box;
+}
+.prompt, .msg-bulle pre { scrollbar-color: #F44B7B transparent; }
+
+/* ============================================================
+   LA VISIONNEUSE
+   Un rendu en grand, par-dessus tout le reste — y compris le
+   volet de génération.
+   ============================================================ */
+
+.visionneuse { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 28px; }
+.visionneuse-voile {
+  position: absolute; inset: 0;
+  background: rgba(16, 10, 27, .82); backdrop-filter: blur(10px);
+  animation: apparait .2s ease-out both;
+}
+@keyframes apparait { from { opacity: 0 } to { opacity: 1 } }
+
+/* Le cadre prend la taille de l'image, et l'image est bornée par ce qui
+   reste de l'écran une fois les marges et le pied retirés : elle se voit
+   toujours en entier, jamais rognée. */
+.visionneuse-cadre {
+  position: relative; margin: 0; width: fit-content;
+  max-width: calc(100vw - 56px); max-height: calc(100vh - 56px);
+  display: flex; flex-direction: column;
+  background: #0B0C13; border: 1px solid var(--bord-clair); border-radius: 16px;
+  overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+  animation: monte .32s cubic-bezier(.22,.9,.24,1) both;
+}
+.visionneuse-media { display: flex; align-items: center; justify-content: center; min-height: 0; }
+.visionneuse-media img, .visionneuse-media video {
+  display: block; width: auto; height: auto;
+  max-width: calc(100vw - 58px);
+  max-height: calc(100vh - 56px - 62px);     /* les marges, puis le pied */
+  object-fit: contain;
+}
+.visionneuse-pied {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 11px 16px; border-top: 1px solid var(--bord); background: var(--panneau);
+}
+.visionneuse-legende { flex: 1; min-width: 0; color: var(--texte-2); font-size: 12.5px; }
+.visionneuse-pied a.btn-mini { text-decoration: none; }
+
+.visionneuse-x {
+  position: absolute; top: 18px; right: 22px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+  color: var(--texte); font-size: 24px; line-height: 1; cursor: pointer;
+  transition: background .14s;
+}
+.visionneuse-x:hover { background: rgba(255,255,255,.16); }
+
+body.visionneuse-ouverte { overflow: hidden; }
+
+@media (max-width: 620px) {
+  .visionneuse { padding: 10px; }
+  .visionneuse-cadre { max-width: calc(100vw - 20px); max-height: calc(100vh - 20px); border-radius: 12px; }
+  .visionneuse-media img, .visionneuse-media video {
+    max-width: calc(100vw - 22px); max-height: calc(100vh - 20px - 62px);
+  }
+  .visionneuse-x { top: 10px; right: 12px; }
+}
+
+/* ============================================================
+   LES SAVOIR-FAIRE EN BOUTONS D'AMORCE
+   Un clic écrit le début de la demande ; l'équipe la finit.
+   ============================================================ */
+
+/* La même liste, au-dessus du composeur, en cours de conversation. */
+
+/* Le bouton d'agrandissement posé sur un média de la galerie. */
+
+/* Le nom du fichier, dans le pied de la visionneuse. */
+.visionneuse-fichier {
+  font-family: var(--mono); font-size: 11.5px; color: var(--texte-3);
+  background: rgba(255,255,255,.05); border-radius: 5px; padding: 3px 8px;
+}
+
+/* ============================================================
+   IMPORTER UN RENDU — le choix d'une image générée
+   ============================================================ */
+
+.choix-rendu { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 28px; }
+.choix-rendu-cadre {
+  position: relative; width: min(1060px, 100%); max-height: calc(100vh - 56px);
+  display: flex; flex-direction: column;
+  background: var(--fond); border: 1px solid var(--bord-clair); border-radius: 16px;
+  box-shadow: 0 40px 120px rgba(0,0,0,.6);
+  animation: monte .3s cubic-bezier(.22,.9,.24,1) both;
+}
+.choix-rendu-tete {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 18px 22px 14px; border-bottom: 1px solid var(--bord);
+}
+.choix-rendu-tete > div { flex: 1; min-width: 0; }
+.choix-rendu-h2 { margin: 0 0 3px; font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
+.choix-rendu-sous { margin: 0; color: var(--texte-3); font-size: 12.5px; }
+.choix-rendu .atl-prep-fermer { display: inline-block; }
+
+.choix-rendu-grille {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 18px 22px 24px;
+  display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  align-content: start;
+}
+.choix-rendu-vide { padding: 30px 22px; color: var(--texte-3); font-size: 13.5px; text-align: center; margin: 0; }
+
+@media (max-width: 620px) {
+  .choix-rendu { padding: 10px; }
+  .choix-rendu-grille { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); padding: 12px; }
+}
+
+/* Vidéos et audios repris comme références : leur vignette dans « Mes images »
+   et dans le choix d'un rendu. */
+
+/* --- Correctifs : la carte d'un rendu à importer, et la carte d'un média déposé --- */
+
+/* Un <button> ne prend pas la hauteur de ses enfants en flex : on lui donne
+   une grille à deux rangs, le visuel à hauteur fixe et la légende dessous. */
+
+/* La carte audio : le signe, et un lecteur pour l'écouter avant de choisir. */
+
+/* minmax(0, 1fr) et min-width: 0 : sans eux, un nom de fichier long en une
+   ligne élargit la carte au-delà de la colonne et cache la croix. */
+/* Chrome partage la hauteur du conteneur entre les rangs quand la grille a
+   une hauteur définie et que les cartes s'étirent : on dimensionne chaque
+   rang sur son contenu, et les cartes s'alignent en haut. */
+.choix-rendu-grille { grid-auto-rows: max-content; align-items: start; }
+
+/* ============================================================
+   STORYMATIC — ce qui s'ajoute au socle
+   Le signe en texte, le formulaire d'avatar, le profil dans le
+   panneau de préparation, la plateforme dans les réglages.
+   ============================================================ */
+
+/* --- Le signe : le panneau de tesselles, puis le nom en Sora 800 resserré
+   à -.05em avec les deux lettres de l'IA en orange, puis « Studio ». --- */
+.brand-pms {
+  display: inline-flex; align-items: center; gap: .58em;
+  font-family: var(--logo); font-weight: 800; font-size: 17px;
+  letter-spacing: -.05em; text-transform: uppercase; color: var(--texte);
+  height: auto; width: auto; white-space: nowrap; line-height: 1;
+  /* Le fondu de fin d'intro : voir jouerIntro(). */
+  transition: opacity .22s ease;
+}
+/* « Studio » vaut .3em du mot tant qu'on est en grand. En dessous de 30 px
+   il sort de cette échelle et prend une taille en pixels : à .3em il
+   tomberait ici à 5 px et ne serait plus qu'une tache. */
+.brand-studio {
+  font-family: "Inter", -apple-system, "Segoe UI", sans-serif; font-weight: 500;
+  font-size: 10px; letter-spacing: .2em; color: var(--texte-3);
+  margin-left: .5em; text-transform: uppercase;
+}
+.brand:hover .brand-pms { color: #fff; }
+.brand-pms b { color: var(--accent); font-weight: inherit; }
+
+/* --- Le verrouillage empilé de l'accueil : le signe, le mot, « Studio ». --- */
+/* Le signe est centré au-dessus du mot, « Studio » centré en dessous :
+   les trois partagent le même axe. Le bloc, lui, reste à gauche de la
+   colonne, d'aplomb avec le texte et les boutons qui suivent. */
+/* Quand le mot tombe à 34 px, « Studio » sort de son échelle : à .26em il
+   ne ferait plus que 9 px. Il prend sa taille à lui, comme dans la barre du
+   haut. À déclarer ICI, après la règle de base : à spécificité égale, c'est
+   la dernière qui gagne, et la requête média du socle est plus haut. */
+h1 { font-family: var(--titres); }
+
+/* --- Le descellement : au repos le panneau est posé, net et d'aplomb ;
+   c'est le survol qui déplace chaque tesselle de son --dx/--dy/--rot,
+   puis elles se rescellent. Le signe de l'intro en est exclu : il a
+   déjà son animation à lui. --- */
+
+/* L'intro : le même verrouillage en grand — le signe, le mot, « Studio ». */
+/* Chaque lettre est allumée séparément par le front de l'onde. */
+/* Depuis le 23 septembre 2026, l'intro écrit le verrouillage EMPILÉ de l'accueil — le signe,
+   le nom dessous, le sous-titre encore dessous — et vient se poser SUR le logo du centre de l'accueil,
+   non plus dans la barre du haut. Mêmes proportions que .hero-logo, en em : le vol n'est alors
+   qu'une réduction, sans déformation, et la relève par le vrai logo ne se voit pas. */
+/* text-indent S'HÉRITE : chaque lettre de l'intro est un <i> en inline-block (l'onde les allume
+   une à une), donc chacune recevait le retrait de .5em devant elle — « STUDIO » arrivait 107 px de
+   large au lieu de 76, et le fondu de la relève se voyait (mesuré le 23 septembre 2026). Le retrait
+   ne vaut que pour le bloc. */
+/* Pendant l'intro, la place du logo de l'accueil est tenue mais vide : c'est celui de l'intro
+   qui vient l'occuper, puis s'efface pendant que le vrai reparaît. */
+/* Les tesselles de l'intro grandissent sur leur propre centre. */
+
+/* Les morceaux du verrouillage naissent invisibles : c'est l'onde qui les
+   allume. Sans ça, le navigateur peint le logo entier dès la première image
+   et on le voit une demi-seconde avant que l'animation ne commence — le
+   temps que le script soit lu et que les polices arrivent. L'ancienne intro
+   l'obtenait par son .intro-lettre { opacity: 0 }, que j'avais retiré avec
+   elle. Si l'intro ne joue pas (animations réduites, changement de projet),
+   le voile entier est masqué, donc ces opacités ne se voient jamais. */
+/* Le signe, lui, est d'abord un <use> — poserLesSignes() ne le remplace par de vrais <rect>
+   qu'une fois app.js lu, tout en bas de la page. Le sélecteur « rect » n'atteint pas l'intérieur
+   d'un <use> : le signe entier restait visible au centre une demi-seconde avant l'animation
+   (relevé le 23 septembre 2026, photo de la page sans scripts à l'appui). */
+.fond {
+  background:
+    radial-gradient(1100px 620px at 92% -12%, rgba(210,63,224,.19),
+    transparent 62%),
+    radial-gradient(900px 520px at -8% -10%, rgba(253,171,61,.08),
+    transparent 60%),
+    radial-gradient(1200px 700px at 40% 118%, rgba(244,75,123,.10),
+    transparent 62%),
+    linear-gradient(165deg, #1A1029 0%, #120B1D 50%, #170B22 100%);
+}
+.btn-mini-fort { background: rgba(244,75,123,.16); border-color: rgba(244,75,123,.45); color: #FF9EC0; }
+.btn-mini-fort:hover { background: rgba(244,75,123,.26); }
+
+/* --- Le formulaire d'avatar : voir LE BUILDER D'AVATAR, en fin de fichier --- */
+
+/* --- Le profil dans le panneau de préparation --- */
+/* Plusieurs avatars cochés : une ligne chacun. */
+
+/* ============================================================
+   LE BUILDER D'AVATAR — trois colonnes, plein écran
+   Tout est dessiné en CSS : aucune image d'illustration.
+   ============================================================ */
+/* Le sol en 3D : un plan quadrillé couché, vu en perspective. Ses lignes
+   fuient vers un horizon placé au tiers de la hauteur, derrière l'aperçu,
+   et s'effacent en approchant de l'horizon comme dans un brouillard. */
+
+/* --- À gauche : les avatars --- */
+/* minmax(0, 1fr) : sans lui, la colonne prend la largeur du nom le plus long (« OPUS 5.5 — Cognitive Complex »)
+   et les cartes débordent à droite de la colonne de gauche, coupées. */
+
+/* --- Au centre : l'aperçu --- */
+/* Générer depuis le builder : régénérer, l'avancement, les réglages, les planches. */
+
+/* --- À droite : le builder --- */
+/* Avec une image : le cadre épouse ses proportions (--ratio, posé par le
+   script), l'image n'est jamais rognée, et les étiquettes passent dessous. */
+
+/* --- Les tuiles --- */
+.bt {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 3px;
+  min-height: 62px; padding: 10px 10px 9px; text-align: left;
+  background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 11px;
+  font: inherit; color: var(--texte-2); cursor: pointer;
+  transition: border-color .12s, color .12s, background .12s, transform .12s;
+}
+.bt:hover { border-color: var(--bord-clair); color: var(--texte); background: #202025; }
+.bt.actif { border-color: var(--accent); color: var(--texte); background: rgba(244,75,123,.07); box-shadow: 0 0 0 1px var(--accent) inset; }
+.bt.actif::after {
+  content: "✓"; position: absolute; top: 7px; right: 7px;
+  width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: #0B0B0D;
+  font-size: 10px; font-weight: 800; display: grid; place-items: center; line-height: 1;
+}
+
+/* les pastilles de couleur : peau, cheveux, yeux, accent */
+
+/* --- Sur un écran étroit : les colonnes s'empilent --- */
+
+/* ============================================================
+   LES FENÊTRES DU STUDIO — confirmations et messages
+   ============================================================ */
+.fen { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 20px; animation: fen-entre .14s ease-out; }
+.fen.fen-sort { animation: fen-sort .12s ease-in forwards; }
+.fen-voile { position: absolute; inset: 0; background: rgba(13,8,22,.72); backdrop-filter: blur(6px); }
+.fen-boite {
+  position: relative; width: min(100%, 440px); max-height: calc(100vh - 40px); overflow: auto;
+  background: linear-gradient(180deg, #19191D, #131316); border: 1px solid var(--bord-clair);
+  border-radius: 18px; padding: 22px 22px 18px;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.02) inset;
+  animation: fen-monte .16s ease-out;
+}
+.fen-titre { margin: 0 0 10px; font-family: var(--titres); font-size: 17px; font-weight: 700; line-height: 1.35; color: var(--texte); }
+.fen-texte { color: var(--texte-2); font-size: 13.5px; line-height: 1.6; white-space: pre-line; }
+/* La troisième issue d'une fenêtre : un chemin de côté, ni « oui » ni « annuler ».
+   Les trois boutons restent groupés à droite — Annuler, le chemin de côté, puis
+   celui qu'on recommande, sous le pouce. À trois, ils ne tiennent plus dans les
+   440 px d'une fenêtre ordinaire : elle s'élargit, et la rangée sait revenir à
+   la ligne sur un écran étroit plutôt que de rogner « Annuler ». */
+.fen-tiers { font-weight: 560; }
+.fen-boite:has(.fen-tiers) { width: min(100%, 540px); }
+.fen-actions { flex-wrap: wrap; }
+
+.fen-champ {
+  width: 100%; margin-top: 12px; padding: 10px 12px; border: 1px solid var(--bord); border-radius: 10px;
+  background: var(--panneau-2); color: var(--texte); font: inherit; font-size: 14px;
+}
+.fen-champ:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+
+.fen-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.fen-bouton {
+  height: 40px; padding: 0 16px; border-radius: 10px; cursor: pointer;
+  font: inherit; font-size: 13.5px; font-weight: 600; white-space: nowrap;
+  transition: filter .12s, border-color .12s, color .12s;
+}
+.fen-non { background: transparent; border: 1px solid var(--bord-clair); color: var(--texte-2); }
+.fen-non:hover { color: var(--texte); border-color: var(--texte-3); }
+.fen-oui { background: var(--pms-grad); border: 0; color: #0B0B0D; font-family: var(--titres); font-weight: 700; }
+.fen-oui:hover { filter: brightness(1.06); }
+.fen-oui:focus-visible, .fen-non:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fen-oui.fen-danger { background: #E5484D; color: #fff; }
+@keyframes fen-entre { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fen-sort { to { opacity: 0; } }
+@keyframes fen-monte { from { transform: translateY(8px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* L'aperçu du builder s'agrandit d'un clic. */
+
+/* Les brouillons : dans « Vos avatars » et dans la colonne du builder. */
+
+/* L'attente d'une planche dans le builder : la barre de l'atelier, centrée. */
+
+/* « Importer un rendu » : un rayon par genre, dépliable. La boîte du haut
+   n'est plus une grille quand elle contient des sections. */
+#choix-rendu-grille:has(.choix-rendu-rayon) { display: block; }
+
+/* « Régénérer » : le champ du modèle est souligné le temps qu'on le voie. */
+
+/* ============================================================
+   L'ONDE DE CHOC du bouton « Générer l'avatar »
+   Mise au point dans LABO/bouton-pixelisation. Le canvas des pixels passe
+   SOUS le libellé ; pendant la génération, deux étoiles tournent l'une
+   autour de l'autre en restant droites.
+   ============================================================ */
+/* Pendant la génération, le bouton est désactivé mais doit rester vivant. */
+
+@property --rayon { syntax: "<length>"; inherits: true; initial-value: 0px; }
+/* Chaque étoile tourne AUTOUR du centre mais reste droite : la rotation qui
+   la place sur le cercle est aussitôt annulée par une rotation inverse. */
+
+/* « Vos avatars » : le titre à gauche, « Importer » et « Créer » en haut à droite. */
+
+/* Sur la page de création, le quadrillage plat du fond laisse la place au sol en 3D. */
+
+/* ============================================================
+   LA PAGE ENVIRONNEMENTS — réplique du builder d'avatar
+   ============================================================ */
+/* Les ciels et les palettes : des pastilles en dégradé. */
+/* La bibliothèque des lieux : des vignettes 16:9, avec le nom de l'avatar. */
+
+/* ============================================================
+   LES PROJETS
+   ============================================================ */
+
+/* Le sélecteur de projet, en tête de la barre du haut. */
+.projet-choix { position: relative; }
+
+.menu-projets {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 60;
+  width: 320px; max-height: min(70vh, 520px); overflow: auto;
+  background: var(--panneau-2); border: 1px solid var(--bord-clair); border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.55); padding: 6px;
+}
+.menu-projets-titre {
+  padding: 8px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--texte-3);
+}
+.menu-projets-item {
+  display: grid; grid-template-columns: 18px 1fr; column-gap: 8px; align-items: center;
+  width: 100%; text-align: left; font: inherit; font-size: 13.5px; color: var(--texte);
+  background: transparent; border: 0; border-radius: 9px; padding: 8px 10px; cursor: pointer;
+}
+.menu-projets-item:hover { background: rgba(255,255,255,.05); }
+.menu-projets-item.courant .menu-projets-nom { color: var(--accent); font-weight: 600; }
+.menu-projets-coche { color: var(--accent); font-size: 12px; text-align: center; }
+.menu-projets-nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-projets-n { grid-column: 2; font-size: 11.5px; color: var(--texte-3); margin-top: 1px; }
+.menu-projets-sep { height: 1px; background: var(--bord); margin: 6px 4px; }
+
+/* « Vos projets » sur l'accueil. */
+
+/* La page d'un projet. */
+
+/* La page Packshots : les cartes gardent le format de leur image. */
+
+/* ============================================================
+   LES RÉGLAGES DE GÉNÉRATION DES BUILDERS (Avatar, Environnement,
+   Packshot) — une carte, trois tuiles, et un menu aux couleurs du
+   studio. Le vrai <select> reste dans la tuile, caché : il garde la
+   valeur, le code l'emplit et le lit comme avant.
+   ============================================================ */
+.rg-tuile { position: relative; min-width: 0; }
+.rg-tuile[data-ico="modele"] { flex-grow: 1.5; }
+.rg-tuile select { display: none; }
+
+/* Le menu vit au-dessus de toute la page (la colonne centrale défile et le
+   couperait) : il est placé à la main, sous la tuile ou au-dessus. */
+
+/* La carte a la largeur de la maquette validée : les boutons d'action s'alignent
+   dessus, et les tuiles passent à la ligne sur un écran étroit. */
+.rg-tuile { flex: 1 1 140px; }
+.rg-tuile[data-ico="modele"] { flex: 1.3 1 180px; }
+
+/* Le bouton hasard des builders : un liseré orange, pour qu'on le remarque. */
+
+/* Les zones de texte des builders suivent leur contenu : tout se lit. */
+
+/* Les galeries « Vos environnements » et « Vos packshots ». */
+
+/* ============================================================
+   LES PARCOURS GUIDÉS
+   L'accueil à trois portes, puis le guide en trois zones : le fil des
+   étapes, l'étape, la mosaïque de ce qui est rassemblé. Tout est
+   préfixé .pg- ou .porte- : rien ici ne touche au reste du studio.
+   ============================================================ */
+
+/* ---------- L'accueil : les trois portes ---------- */
+.portes-question {
+  margin: 0 0 8px; font-family: var(--titres); font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 36px); line-height: 1.15; letter-spacing: -.01em;
+}
+
+.portes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; width: 100%; }
+.porte {
+  position: relative; display: grid; gap: 6px; align-content: start; text-align: left;
+  padding: 20px 20px 18px; border-radius: 18px; border: 1px solid var(--bord);
+  background: linear-gradient(180deg, var(--panneau-2), var(--panneau));
+  color: var(--texte); font: inherit; cursor: pointer; overflow: hidden;
+  transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s, box-shadow .25s;
+}
+.porte:hover, .porte:focus-visible {
+  transform: translateY(-4px); border-color: rgba(244,75,123,.6); outline: none;
+  box-shadow: 0 24px 60px -30px rgba(244,75,123,.55);
+}
+
+/* Les trois illustrations, dessinées en CSS aux vraies proportions. */
+
+.portes-reprise {
+  margin-top: 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+  padding: 9px 12px 9px 16px; border: 1px dashed var(--bord-clair); border-radius: 12px;
+  font-size: 13.5px; color: var(--texte-2);
+}
+.portes-reprise b { color: var(--texte); font-weight: 600; }
+
+/* Les carrousels et stories du projet */
+.pg-slide iframe, .pg-cf-slide iframe { border: 0; transform-origin: 0 0; pointer-events: none; display: block; position: absolute; left: 0; top: 0; }
+/* La vignette d'un Reel : la vidéo elle-même, réduite comme une slide. */
+
+/* ---------- Le guide ---------- */
+
+body.mode-parcours main { max-width: 1320px; padding-top: 28px; }
+.pg {
+  display: grid; grid-template-columns: 220px minmax(0, 1fr) 290px; min-height: calc(100vh - 190px);
+  border: 1px solid var(--bord); border-radius: 18px; overflow: hidden;
+  background: radial-gradient(ellipse at 50% -10%, rgba(244,75,123,.08), transparent 55%), rgba(22,14,36,.6);
+}
+.pg-fil { border-right: 1px solid var(--bord); padding: 24px 14px; display: flex; flex-direction: column; gap: 3px; }
+.pg-fil-titre { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--texte-3); margin: 0 8px 12px; }
+.pg-pas {
+  display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; padding: 9px 8px; border-radius: 10px;
+  background: none; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer;
+}
+.pg-pas:hover { background: rgba(255,255,255,.035); }
+.pg-pas-n { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--bord-clair); display: grid; place-items: center; font-size: 12px; color: var(--texte-2); font-weight: 600; }
+.pg-pas-nom { font-size: 14px; font-weight: 600; color: var(--texte-2); line-height: 1.3; min-width: 0; }
+.pg-pas-info { display: block; font-size: 12px; color: var(--texte-3); font-weight: 400; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-pas.ici .pg-pas-n { background: var(--accent); border-color: var(--accent); color: #0B0B0D; }
+.pg-pas.ici .pg-pas-nom { color: var(--texte); }
+.pg-pas.fait .pg-pas-n { border-color: var(--ok); color: var(--ok); }
+.pg-pas.fait .pg-pas-info { color: var(--texte-2); }
+.pg-quitter { margin-top: auto; background: none; border: 0; padding: 12px 8px 0; font: inherit; font-size: 12.5px; color: var(--texte-3); cursor: pointer; text-align: left; }
+.pg-quitter:hover { color: var(--texte-2); }
+
+.pg-centre { padding: 32px 38px 26px; display: flex; flex-direction: column; min-width: 0; }
+.pg-sur { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0 0 6px; }
+.pg-titre { font-family: var(--titres); font-size: 27px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -.01em; }
+.pg-facultatif { font: 500 11px/1 "Inter", -apple-system, "Segoe UI", sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--texte-3); border: 1px solid var(--bord-clair); border-radius: 999px; padding: 4px 9px; margin-left: 10px; vertical-align: middle; }
+.pg-lead { color: var(--texte-2); margin: 0 0 22px; max-width: 64ch; }
+.pg-corps { flex: 1; display: grid; align-content: start; gap: 16px; min-width: 0; }
+.pg-pied { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 20px; margin-top: 22px; border-top: 1px solid var(--bord); }
+.pg-pied-note { color: var(--texte-3); font-size: 13px; margin-right: auto; }
+#pg-erreur { margin: 16px 0 0; }
+
+.pg-btn {
+  display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; padding: 10px 18px;
+  font: inherit; font-weight: 600; font-size: 14px; color: var(--texte); text-decoration: none; cursor: pointer;
+  border: 1px solid var(--bord-clair); background: var(--panneau); justify-self: start;
+}
+.pg-btn:hover { border-color: var(--texte-3); }
+.pg-btn:disabled { opacity: .5; cursor: default; }
+.pg-btn-go { border: 0; background: var(--pms-grad); color: #0B0B0D; font-family: var(--titres); box-shadow: 0 12px 34px -14px rgba(244,75,123,.7); }
+.pg-btn-go:hover { filter: brightness(1.06); }
+.pg-btn-fantome { border-color: transparent; background: none; color: var(--texte-2); }
+
+.pg-champ {
+  width: 100%; background: var(--panneau); border: 1px solid var(--bord-clair); border-radius: 12px;
+  color: var(--texte); font: inherit; padding: 12px 14px; resize: vertical;
+}
+.pg-champ:focus, #pg-loupe-remarque:focus { outline: none; border-color: var(--accent); }
+.pg-etiquette { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--texte-3); font-weight: 600; margin: 6px 0 -6px; }
+.pg-astuce { font-size: 13px; color: var(--texte-2); border-left: 2px solid var(--accent); padding: 2px 0 2px 12px; margin: 0; max-width: 72ch; }
+.pg-astuce b { color: var(--texte); font-weight: 600; }
+.pg-gratuit { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ok); margin: 0; }
+.pg-gratuit::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+.pg-avis { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 12px; font-size: 13.5px;
+           border: 1px solid rgba(255,184,77,.35); background: rgba(255,184,77,.08); color: var(--attention); }
+
+.pg-puces { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pg-puce { border: 1px solid var(--bord-clair); background: var(--panneau); border-radius: 999px; padding: 8px 16px; font: inherit; font-size: 13.5px; font-weight: 500; color: var(--texte); cursor: pointer; }
+.pg-puce:hover { border-color: var(--texte-3); }
+.pg-puce.on { background: rgba(244,75,123,.14); border-color: var(--accent); color: #FF9EC0; }
+.pg-puce.verrou { opacity: .7; cursor: default; }
+/* Le mot d'explication sous la photo : il prend la ligne entière. */
+
+/* L'attente */
+.pg-attente { display: grid; gap: 10px; padding: 26px 0; max-width: 520px; }
+.pg-attente-txt { margin: 0; font-weight: 600; }
+.pg-attente-sous { margin: 0; color: var(--texte-3); font-size: 13px; }
+
+/* La DA */
+.pg-plan-media {
+  background: var(--panneau); border: 1px solid var(--bord-clair); border-radius: 10px; color: var(--texte); font: inherit; font-size: 14px; padding: 9px 10px;
+}
+
+/* Les médias */
+
+/* Le plan */
+.pg-plan-titre { font-family: var(--titres); font-weight: 600; font-size: 16px; }
+.pg-plan-role { font-size: 11px !important; letter-spacing: .1em; text-transform: uppercase; color: var(--accent) !important; font-weight: 600 !important; }
+.pg-plan-outil { width: 26px; height: 24px; border-radius: 7px; border: 1px solid var(--bord); background: none; color: var(--texte-3); font-size: 13px; line-height: 1; cursor: pointer; }
+.pg-plan-outil:hover { color: var(--texte); border-color: var(--bord-clair); }
+.pg-accord { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px 10px 16px; border-radius: 12px; border: 1px solid var(--bord); background: var(--panneau); font-size: 13.5px; color: var(--texte-2); }
+.pg-accord span { flex: 1; min-width: 220px; }
+.pg-accord b { color: var(--texte); font-weight: 600; }
+.pg-accord.neuf { border-color: rgba(244,75,123,.5); background: rgba(244,75,123,.07); }
+.pg-accord .pg-btn { padding: 8px 14px; font-size: 13px; }
+.pg-plan-cadenas { display: grid; place-items: center; }
+.pg-plan-cadenas.on { color: var(--accent); border-color: rgba(244,75,123,.55); background: rgba(244,75,123,.12); }
+.pg-demande { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+
+/* Les slides */
+.pg-planche { display: flex; flex-wrap: wrap; gap: 14px; }
+.pg-slide { position: relative; flex: none; padding: 0; border: 1px solid var(--bord-clair); border-radius: 10px; overflow: hidden; background: var(--panneau-2); cursor: zoom-in; transition: transform .2s, border-color .2s; }
+.pg-slide:hover { transform: translateY(-3px); border-color: var(--accent); }
+.pg-slide-voile { position: absolute; inset: 0; display: grid; align-items: end; justify-items: start; padding: 8px; opacity: 0; transition: opacity .2s; background: linear-gradient(0deg, rgba(0,0,0,.6), transparent 45%); }
+.pg-slide-voile span { font-size: 11.5px; font-weight: 600; color: #fff; }
+.pg-slide:hover .pg-slide-voile { opacity: 1; }
+.pg-zone { position: absolute; left: 0; right: 0; pointer-events: none; background: repeating-linear-gradient(45deg, rgba(255,107,107,.22) 0 5px, transparent 5px 10px); }
+.pg-zone-h { top: 0; height: 13%; } .pg-zone-b { bottom: 0; height: 17.7%; }
+.pg-slides-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.pg-export { display: grid; gap: 12px; padding: 16px; border: 1px solid rgba(78,203,143,.35); background: rgba(78,203,143,.06); border-radius: 14px; font-size: 14px; color: var(--texte-2); }
+.pg-export b { color: var(--texte); font-weight: 600; }
+.pg-export-titre { font-family: var(--titres); font-size: 19px; font-weight: 600; color: var(--ok); }
+
+/* ---------- À droite : la mosaïque ---------- */
+
+.pg-recap { border-left: 1px solid var(--bord); padding: 24px 18px; display: grid; align-content: start; gap: 14px; background: rgba(255,255,255,.012); min-width: 0; }
+/* À l'étape du prompt, la colonne de droite porte du texte à lire et à corriger :
+   elle s'élargit, et défile pour elle-même. */
+.pg.pg-avec-prompt { grid-template-columns: 220px minmax(0, 1fr) 400px; }
+.pg-avec-prompt .pg-recap { max-height: calc(100vh - 190px); overflow: auto; align-content: start; }
+.pg-recap-h { font-family: var(--titres); font-size: 15px; margin: 0; }
+.pg-recap-p { margin: -10px 0 0; font-size: 12.5px; color: var(--texte-3); }
+.pg-mosaique { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.pg-tesselle {
+  position: relative; aspect-ratio: 1; border-radius: 9px; border: 1px dashed var(--bord-clair); overflow: hidden;
+  display: grid; place-items: center; text-align: center; padding: 4px; font-size: 10.5px; line-height: 1.25; color: var(--texte-3);
+}
+.pg-tesselle.pleine { border: 0; color: #0B0B0D; font-weight: 600; animation: pg-pose .4s cubic-bezier(.2,1.4,.4,1); background-size: cover; background-position: center; }
+.pg-tesselle.image { align-items: end; color: #fff; }
+.pg-tesselle.image::before { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.72), transparent 60%); }
+.pg-tesselle span { position: relative; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; word-break: break-word; }
+.pg-tesselle em { position: absolute; z-index: 1; top: 4px; left: 6px; font-style: normal; font-size: 9.5px; font-weight: 700; opacity: .8; }
+.pg-tesselle.image em { background: rgba(0,0,0,.55); border-radius: 5px; padding: 1px 4px; opacity: 1; }
+@keyframes pg-pose { from { transform: scale(.6) rotate(-8deg); opacity: 0; } }
+.pg-recap-lignes { display: grid; gap: 8px; font-size: 13px; }
+.pg-recap-lignes div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--bord); padding-bottom: 8px; }
+.pg-recap-lignes span { color: var(--texte-3); flex: none; }
+.pg-recap-lignes b { font-weight: 500; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.pg-recap-note { font-size: 12.5px; color: var(--texte-2); border: 1px solid var(--bord); border-radius: 10px; padding: 10px 12px; margin: 0; }
+
+/* ---------- La loupe ---------- */
+
+/* En dessous de 820 px le panneau des outils passe SOUS la scene : l'ensemble
+   devient plus haut que l'ecran. Sans defilement, le bas etait inatteignable. */
+.pg-loupe { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px; overflow: auto; }
+.pg-loupe-cadre {
+  position: relative;
+  display: grid;
+  gap: 24px;
+  align-items: center;
+  max-width: 100%;
+  max-height: 100%;
+  animation: monte .3s cubic-bezier(.22,.9,.24,1) both;
+}
+
+/* ---------- LE COVER FLOW DE LA LOUPE ----------
+
+   La slide qu'on retouche reste nette, droite et devant ; ses voisines se
+   couchent de part et d'autre. Elles ne reçoivent ni clic dans leur page ni
+   tabulation : seul leur cadre est cliquable, pour venir les chercher.
+   Mis au point dans LABO/carrousel-3d/. */
+.pg-loupe-scene.pg-cf { position: relative; display: grid; place-items: center; perspective: 1700px; }
+.pg-cf-plateau { position: relative; display: grid; place-items: center; transform-style: preserve-3d; }
+.pg-cf-slide {
+  position: absolute; overflow: hidden; border-radius: 12px; border: 1px solid var(--bord-clair);
+  background: #000; transform-style: preserve-3d;
+  transition: transform .42s cubic-bezier(.22,.9,.24,1), filter .42s ease, box-shadow .42s ease;
+  will-change: transform;
+}
+.pg-cf-slide.ici { box-shadow: 0 40px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(244,75,123,.45); z-index: 10; }
+.pg-cf-slide.cote { cursor: pointer; }
+.pg-cf-slide.cote::after {
+  content: ""; position: absolute; inset: 0; background: rgba(16,10,27,.55); transition: background .3s ease;
+}
+.pg-cf-slide.cote:hover::after { background: rgba(16,10,27,.25); }
+.pg-cf-fleche {
+  position: absolute; top: 50%; z-index: 20; width: 44px; height: 44px; margin-top: -22px;
+  display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--bord-clair);
+  background: rgba(30,21,48,.86); backdrop-filter: blur(10px); color: var(--texte); cursor: pointer;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.pg-cf-fleche:hover { border-color: var(--accent); background: rgba(38,28,58,.95); transform: scale(1.06); }
+.pg-cf-fleche:disabled { opacity: .3; cursor: default; transform: none; border-color: var(--bord); }
+.pg-cf-fleche svg { width: 18px; height: 18px; }
+.pg-cf-avant { left: -6px; }
+.pg-cf-apres { right: -6px; }
+.pg-cf-rang { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; z-index: 20; }
+.pg-cf-rang i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--bord-clair); cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.pg-cf-rang i.ici { background: var(--accent); transform: scale(1.35); }
+/* Seule la slide du centre se retouche : ses voisines ne reçoivent rien dans
+   leur page, c'est leur cadre qui prend le clic pour venir les chercher. */
+.pg-cf-slide.ici iframe { pointer-events: auto; }
+/* Le panneau des outils passe DEVANT la scène, sans ambiguïté : une slide
+   voisine qui dépasse un peu ne doit jamais se deviner au travers. Et son
+   défilement doit SE VOIR — il contient bien plus de réglages qu'un écran
+   n'en montre dès qu'un élément est sélectionné, et sans barre visible on
+   croyait le panneau coupé. */
+.pg-loupe-outils {
+  position: relative; z-index: 2;
+  display: grid; gap: 14px; align-content: start; padding: 20px;
+  border-radius: 16px; border: 1px solid var(--bord-clair); background: var(--fond);
+  max-height: calc(100vh - 48px); overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: var(--bord-clair) transparent;
+}
+.pg-loupe-outils::-webkit-scrollbar { width: 10px; }
+.pg-loupe-outils::-webkit-scrollbar-thumb { background: var(--bord-clair); border-radius: 99px; border: 3px solid var(--fond); }
+.pg-loupe-outils::-webkit-scrollbar-track { background: transparent; }
+.pg-loupe-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pg-loupe-tete .atl-prep-fermer { display: inline-block; }
+.pg-loupe-h { font-family: var(--titres); font-size: 17px; margin: 0; }
+.pg-loupe-bloc { display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--bord); }
+.pg-loupe-bloc h3 { margin: 0; font-size: 13.5px; font-weight: 600; }
+.pg-loupe-bloc p { margin: 0; font-size: 13px; color: var(--texte-2); line-height: 1.5; }
+#pg-loupe-remarque { width: 100%; background: var(--panneau); border: 1px solid var(--bord-clair); border-radius: 10px; color: var(--texte); font: inherit; font-size: 14px; padding: 10px 12px; resize: vertical; }
+
+/* ---------- Le bandeau de retour, et le bouton de l'atelier ---------- */
+@media (max-width: 1080px) {
+  .pg { grid-template-columns: 200px minmax(0, 1fr); }
+  .pg-recap { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--bord); grid-template-columns: 210px minmax(0, 1fr); column-gap: 24px; }
+  .pg-recap-h, .pg-recap-p, .pg-recap-note { grid-column: 1 / -1; }
+}
+@media (max-width: 820px) {
+  .portes { grid-template-columns: minmax(0, 1fr); }
+  .porte { grid-template-columns: 110px minmax(0, 1fr); column-gap: 16px; align-items: center; }
+  .pg { grid-template-columns: minmax(0, 1fr); }
+  .pg-fil { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--bord); padding: 10px; overflow-x: auto; gap: 2px; }
+  .pg-fil-titre, .pg-pas-info, .pg-quitter { display: none; }
+  .pg-pas { grid-template-columns: 24px auto; flex: none; align-items: center; }
+  .pg-pas:not(.ici) .pg-pas-nom { display: none; }
+  .pg-centre { padding: 22px 18px; }
+  .pg-titre { font-size: 23px; }
+  .pg-recap { grid-template-columns: minmax(0, 1fr); }
+  .pg-mosaique { grid-template-columns: repeat(6, 1fr); }
+  .pg-demande { grid-template-columns: minmax(0, 1fr); }
+  .pg-loupe { padding: 12px; overflow: auto; place-items: start center; }
+  .pg-loupe-cadre { justify-items: center; }
+  .pg-loupe-outils { width: 100%; max-height: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .porte, .pg-slide { transition: none; }
+  .pg-tesselle.pleine { animation: none; }
+}
+
+/* ============================================================
+   LA PAGE « CRÉER UNE VIDÉO »
+   Elle reprend le studio en trois colonnes des créateurs (.bld, .bs, .bt,
+   .rg-carte) : seul ce qui lui est propre est écrit ici, sous .vd-.
+   ============================================================ */
+
+/* Le centre porte plus de choses que dans les autres créateurs (quatre
+   réglages, deux rangées de boutons). Centré en hauteur, un contenu plus
+   haut que l'écran aurait son sommet hors d'atteinte : les marges
+   automatiques centrent quand il y a la place, et laissent défiler sinon. */
+
+/* Quatre réglages : deux rangées de deux, plutôt que trois et un orphelin. */
+
+/* Les tuiles à image : avatars, environnements, packshots. */
+
+/* Le prompt */
+.vd-s-prompt { border-color: rgba(244,75,123,.4); }
+
+/* ============================================================
+   LES ILLUSTRATIONS GÉNÉRÉES, ET LA DA AU HASARD
+   ============================================================ */
+
+/* L'éditeur de DA : partir d'un tirage, ou d'une phrase. */
+/* Deux rangées : le dé seul, puis la phrase sur toute la largeur avec son bouton. Sur une seule
+   rangée, le champ était si étroit qu'on n'en lisait plus la consigne. */
+/* Sur sa propre rangée : dans la colonne du bouton, sa longueur écrasait le champ. */
+
+/* Les autres images d'une slide, sous la première */
+.pg-plan-illu-etat { font-size: 11.5px; font-weight: 600; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--bord-clair); color: var(--texte-2); }
+.pg-plan-illu-etat.faite { color: var(--ok); border-color: rgba(78,203,143,.4); }
+.pg-plan-illu-etat.afaire { color: #FF9EC0; border-color: rgba(244,75,123,.45); }
+.pg-plan-illu-etat.changee { color: var(--attention); border-color: rgba(255,184,77,.4); }
+.pg-pastille-fond { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--bord-clair); padding: 0; cursor: pointer; }
+.pg-pastille-fond.on { box-shadow: 0 0 0 2px var(--fond), 0 0 0 4px var(--accent); }
+
+/* ---------- LE NUANCIER DU STUDIO (nuancier, boutonAutreCouleur — app.js) ---------- */
+.nu-autre {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 4px;
+  border-radius: 99px; border: 1px solid var(--bord-clair); background: var(--panneau);
+  color: var(--texte-2); font: 500 12px/1 inherit; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.nu-autre:hover { border-color: var(--accent); color: var(--texte); }
+.nu-autre.on { border-color: var(--accent); color: var(--texte); }
+.nu-anneau {
+  width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(#ff4d4d, #ffb84d, #f9e04a, #4ecb8f, #4d9fff, #9b6bff, #ff4dd2, #ff4d4d);
+}
+.nu-anneau i { width: 10px; height: 10px; border-radius: 50%; background: var(--panneau); display: block; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+
+.nu {
+  position: fixed; z-index: 95; width: 248px; box-sizing: border-box; padding: 14px; display: grid; gap: 12px;
+  /* La colonne tient dans le cadre : sans minmax(0, 1fr), la largeur par défaut du champ hexa
+     (une vingtaine de caractères) élargissait tout le contenu au-delà du bord droit. */
+  grid-template-columns: minmax(0, 1fr);
+  border-radius: 14px; border: 1px solid var(--bord-clair); background: var(--panneau-2);
+  box-shadow: 0 24px 60px rgba(0,0,0,.55); animation: nu-entre .14s ease-out both;
+}
+.nu.nu-sort { animation: nu-sort .11s ease-in both; }
+@keyframes nu-entre { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+@keyframes nu-sort { to { opacity: 0; transform: translateY(-4px) scale(.98); } }
+.nu-tete { font-size: 12.5px; font-weight: 600; color: var(--texte); }
+.nu-sv { position: relative; height: 150px; border-radius: 10px; cursor: crosshair; touch-action: none; }
+.nu-teinte {
+  position: relative; height: 12px; border-radius: 99px; cursor: pointer; touch-action: none;
+  background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+.nu-curseur {
+  position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%;
+  border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.4); pointer-events: none;
+}
+.nu-teinte .nu-curseur { top: 50%; }
+.nu-ligne { display: flex; align-items: center; gap: 8px; }
+.nu-apercu { width: 30px; height: 30px; flex: none; border-radius: 8px; border: 1px solid var(--bord-clair); }
+.nu-hexa {
+  flex: 1; min-width: 0; width: 0; height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--bord-clair);
+  background: var(--fond); color: var(--texte); font: 500 13px/1 var(--mono, monospace); letter-spacing: .04em;
+}
+.nu-hexa:focus { outline: none; border-color: var(--accent); }
+.nu-pipette {
+  width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 8px;
+  border: 1px solid var(--bord-clair); background: var(--fond); color: var(--texte-2); cursor: pointer;
+}
+.nu-pipette:hover { color: var(--texte); border-color: var(--accent); }
+.nu-pipette svg { width: 15px; height: 15px; }
+.nu-recentes-bloc { display: grid; gap: 6px; }
+.nu-recentes-bloc > span { font-size: 11px; color: var(--texte-3); }
+.nu-recentes { display: flex; flex-wrap: wrap; gap: 6px; }
+.nu-pastille { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--bord-clair); padding: 0; cursor: pointer; }
+.nu-pastille:hover { box-shadow: 0 0 0 2px var(--panneau-2), 0 0 0 3px var(--texte-2); }
+.nu-pied { display: flex; justify-content: flex-end; gap: 6px; }
+
+/* Les références d'une illustration */
+
+/* Sous le plan */
+
+/* ============================================================
+   L'ÉDITEUR DE SLIDE — le panneau de la loupe
+   ============================================================ */
+.pg-ed { display: grid; gap: 9px; }
+.pg-ed-rangee { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.pg-ed-rangee .btn-mini:disabled { opacity: .4; cursor: default; }
+.pg-ed-aide { font-size: 13px; line-height: 1.55; color: var(--texte-2); border: 1px dashed var(--bord-clair); border-radius: 12px; padding: 12px 14px; }
+.pg-ed-aide b { color: var(--texte); font-weight: 600; }
+.pg-ed-aide ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.pg-ed-titre { margin: 2px 0 0; font-weight: 600; font-size: 13.5px; color: #FF9EC0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-ed-note { margin: 0; font-size: 12.5px; color: var(--texte-2); }
+.pg-ed-groupe { margin: 8px 0 -2px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--texte-3); font-weight: 600; }
+.pg-ed-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.pg-ed-champ { display: grid; grid-template-columns: 1fr auto auto; gap: 4px; align-items: center; font-size: 11.5px; color: var(--texte-3); }
+.pg-ed-champ span { grid-column: 1 / -1; }
+.pg-ed-champ input[type="number"] {
+  width: 100%; min-width: 0; background: var(--panneau); border: 1px solid var(--bord-clair); border-radius: 8px;
+  color: var(--texte); font: inherit; font-size: 13px; padding: 6px 7px;
+}
+.pg-ed-champ input[type="number"]:focus { outline: none; border-color: var(--accent); }
+.pg-ed-pm { padding: 4px 8px !important; font-size: 13px !important; line-height: 1 !important; }
+.pg-ed-large { grid-template-columns: 1fr; }
+.pg-ed-large input[type="range"] { width: 100%; accent-color: var(--accent); }
+.pg-ed-police { width: 100%; font-size: 15px; }
+.pg-ed-police option { font-size: 15px; }
+.pg-ed-une-graisse { font-size: 12px; color: var(--texte-3); padding: 0 6px; }
+/* Un simple lien sous le menu Police : discret, il ne prend qu'une ligne. */
+.pg-ed-plus-polices {
+  display: block; width: auto; min-width: 0; min-height: 0; justify-self: start; align-self: flex-start; margin: 6px 0 0; padding: 2px 0;
+  border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--accent); cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 500; text-align: left; white-space: nowrap;
+}
+.pg-ed-plus-polices:hover { background: none; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- LA BIBLIOTHÈQUE DE POLICES (app/js/polices.js) — mise au point dans LABO/bibliotheque-polices ---------- */
+.bp { position: fixed; inset: 0; z-index: 88; display: grid; place-items: center; padding: 24px; }
+.bp-voile { position: absolute; inset: 0; background: rgba(13,8,22,.72); backdrop-filter: blur(6px); }
+.bp-boite {
+  position: relative; width: min(1120px, 100%); height: min(860px, calc(100vh - 48px)); display: grid; grid-template-rows: auto auto 1fr;
+  border: 1px solid var(--bord-clair); border-radius: 18px; background: var(--fond); overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,.6);
+  animation: monte .25s cubic-bezier(.22,.9,.24,1) both;
+}
+.bp-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px 12px; border-bottom: 1px solid var(--bord); }
+.bp-tete h2 { font-family: var(--titres); font-size: 19px; margin: 0; }
+.bp-tete p { margin: 3px 0 0; color: var(--texte-2); font-size: 13px; }
+.bp-fermer { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--bord-clair); background: var(--panneau); color: var(--texte); cursor: pointer; font-size: 18px; line-height: 1; flex: none; }
+.bp-fermer:hover { border-color: var(--accent); }
+.bp-outils { display: grid; gap: 12px; padding: 14px 22px; border-bottom: 1px solid var(--bord); background: var(--panneau); }
+.bp-ligne { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.bp-cherche { flex: 1 1 260px; position: relative; }
+.bp-cherche input, .bp-apercu { width: 100%; background: var(--fond); color: var(--texte); border: 1px solid var(--bord-clair); border-radius: 10px; padding: 9px 12px 9px 34px; font: inherit; }
+.bp-apercu { padding-left: 12px; }
+.bp-cherche svg { position: absolute; left: 11px; top: 50%; width: 15px; height: 15px; margin-top: -7.5px; color: var(--texte-3); }
+.bp input:focus, .bp select:focus { outline: none; border-color: var(--accent); }
+.bp-tri { flex: 0 0 210px; background: var(--fond); color: var(--texte); border: 1px solid var(--bord-clair); border-radius: 10px; padding: 9px 10px; font: inherit; }
+.bp-puces { display: flex; flex-wrap: wrap; gap: 6px; }
+.bp-puce { border: 1px solid var(--bord-clair); background: var(--fond); color: var(--texte-2); border-radius: 99px; padding: 6px 12px; cursor: pointer; font: inherit; font-size: 13px; }
+.bp-puce b { font-weight: 500; color: var(--texte-3); margin-left: 4px; font-size: 11.5px; }
+.bp-puce:hover { color: var(--texte); border-color: var(--texte-3); }
+.bp-puce.on { color: var(--texte); border-color: var(--accent); background: rgba(244,75,123,.12); }
+.bp-puce.on b { color: #FF9EC0; }
+.bp-taille { display: flex; align-items: center; gap: 8px; color: var(--texte-3); font-size: 12px; flex: 0 0 200px; }
+.bp-taille input { flex: 1; accent-color: var(--accent); }
+.bp-apercu-bloc { flex: 1 1 300px; }
+.bp-ajoutees { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--texte-3); }
+.bp-puce-ajoutee { cursor: default; color: var(--texte); border-color: rgba(78,203,143,.45); background: rgba(78,203,143,.08); display: inline-flex; gap: 6px; align-items: center; }
+.bp-puce-ajoutee button { border: 0; background: none; color: var(--texte-3); cursor: pointer; padding: 0; font-size: 14px; line-height: 1; }
+.bp-puce-ajoutee button:hover { color: var(--texte); }
+.bp-liste { overflow-y: auto; padding: 16px 22px 30px; scrollbar-width: thin; scrollbar-color: var(--bord-clair) transparent; }
+.bp-compte { font-size: 12.5px; color: var(--texte-3); margin: 0 0 12px; }
+.bp-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.bp-carte {
+  display: grid; grid-template-rows: auto 1fr auto; gap: 8px; min-height: 168px; padding: 14px 16px 12px;
+  border: 1px solid var(--bord); border-radius: 14px; background: var(--panneau); cursor: pointer; transition: border-color .15s, background .15s;
+}
+.bp-carte:hover { border-color: var(--bord-clair); background: var(--panneau-2); }
+.bp-carte.essai { border-color: var(--accent); }
+.bp-carte-nom { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.bp-carte-nom b { font-size: 13.5px; font-weight: 600; }
+.bp-carte-nom span { font-size: 11.5px; color: var(--texte-3); white-space: nowrap; }
+.bp-carte-apercu { color: var(--texte); line-height: 1.12; overflow: hidden; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; transition: opacity .25s; }
+.bp-carte-apercu.attend { opacity: .15; }
+.bp-carte-pied { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.bp-carte-pied small { color: var(--texte-3); font-size: 11.5px; }
+.bp-ajouter { border: 1px solid var(--accent); background: rgba(244,75,123,.15); color: var(--texte); border-radius: 9px; padding: 6px 12px; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 600; }
+.bp-ajouter:hover { background: rgba(244,75,123,.28); }
+.bp-ajouter.fait { border-color: rgba(78,203,143,.5); background: rgba(78,203,143,.1); color: var(--ok); }
+.bp-ajouter.studio { border-color: var(--bord-clair); background: transparent; color: var(--texte-3); cursor: default; }
+.bp-vide { text-align: center; color: var(--texte-3); padding: 60px 0; }
+.bp-sentinelle { height: 40px; }
+/* Les titres de groupe restent dans la police du studio : ils héritaient de celle du menu, donc de la police choisie. */
+.pg-ed-police optgroup { font-family: "Inter", -apple-system, "Segoe UI", sans-serif; font-style: normal; font-weight: 600; font-size: 12px; color: var(--texte-3); }
+.pg-ed-couleurs { display: grid; gap: 5px; font-size: 11.5px; color: var(--texte-3); }
+.pg-ed-couleurs > div { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.pg-ed-couleurs input[type="color"] { width: 26px; height: 26px; padding: 0; border: 1px solid var(--bord-clair); border-radius: 50%; background: none; cursor: pointer; overflow: hidden; }
+.pg-ed-couleurs input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.pg-ed-couleurs input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 50%; }
+
+/* ---------- LES CALQUES — la colonne de gauche de la loupe ----------
+   Du dessus (en haut) au dessous (en bas), dans l'ordre où la slide les peint vraiment.
+   En dessous de 1180 px de large, la place manque : la colonne s'efface (pgCFPlace le sait). */
+.pg-loupe-cadre { grid-template-columns: 250px auto 360px; }
+.pg-calques {
+  position: relative; z-index: 2; align-self: center;
+  display: grid; gap: 2px; align-content: start; padding: 16px 10px 14px;
+  /* La colonne tient dans sa largeur : sans minmax(0, 1fr), un nom de calque un peu long élargissait
+     toute la grille et poussait l'œil hors de vue, à droite (relevé le 23 septembre 2026). */
+  grid-template-columns: minmax(0, 1fr); overflow-x: hidden;
+  border-radius: 16px; border: 1px solid var(--bord-clair); background: var(--fond);
+  max-height: calc(100vh - 48px); overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: var(--bord-clair) transparent;
+}
+.pg-calques:empty { display: none; }
+.pg-ck-tete { display: flex; align-items: baseline; justify-content: space-between; padding: 0 6px 6px; }
+.pg-ck-tete h3 { margin: 0; font-size: 13.5px; font-weight: 600; }
+.pg-ck-tete span { font-size: 11px; color: var(--texte-3); }
+.pg-ck-aide { margin: 0 6px 8px; font-size: 11.5px; line-height: 1.45; color: var(--texte-3); }
+.pg-ck-bord { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--texte-3); padding: 4px 6px; }
+.pg-ck-ligne {
+  position: relative; display: flex; align-items: center; gap: 7px; min-height: 32px;
+  padding: 3px 6px; border-radius: 8px; cursor: pointer; user-select: none;
+  font-size: 12.5px; color: var(--texte-2); border: 1px solid transparent;
+}
+.pg-ck-ligne:hover { background: var(--panneau); color: var(--texte); }
+.pg-ck-ligne.on { background: rgba(244,75,123,.14); border-color: rgba(244,75,123,.55); color: var(--texte); }
+.pg-ck-ligne.cache { opacity: .45; }
+.pg-ck-ligne.glisse { opacity: .35; }
+.pg-ck-ligne.avant::before, .pg-ck-ligne.apres::after {
+  content: ""; position: absolute; left: 6px; right: 6px; height: 2px; background: var(--accent); border-radius: 2px;
+}
+.pg-ck-ligne.avant::before { top: -2px; }
+.pg-ck-ligne.apres::after { bottom: -2px; }
+.pg-ck-chev { width: 16px; flex: none; border: 0; background: none; color: var(--texte-2); cursor: pointer; padding: 0; font-size: 13px; line-height: 1; }
+.pg-ck-chev:hover { color: var(--texte); }
+.pg-ck-vig {
+  width: 24px; height: 24px; flex: none; border-radius: 5px; display: grid; place-items: center; overflow: hidden;
+  border: 1px solid var(--bord-clair); background: var(--panneau); font: 700 12px/1 var(--titres); color: var(--texte-2);
+}
+.pg-ck-vig img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+  background: repeating-conic-gradient(#3a3a40 0 25%, #26262b 0 50%) 50% / 8px 8px;
+}
+.pg-ck-nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-ck-tag { flex: none; font-size: 10px; padding: 1px 5px; border-radius: 99px; border: 1px solid var(--bord-clair); color: var(--texte-3); }
+.pg-ck-oeil {
+  flex: none; width: 24px; height: 24px; display: grid; place-items: center; border: 0; border-radius: 6px;
+  background: none; color: var(--texte-3); cursor: pointer; opacity: .45; transition: opacity .12s;
+}
+/* Toujours visible, discret au repos : caché jusqu'au survol, personne ne devinait qu'il existait. */
+.pg-ck-ligne:hover .pg-ck-oeil, .pg-ck-ligne.cache .pg-ck-oeil, .pg-ck-ligne.on .pg-ck-oeil { opacity: 1; }
+.pg-ck-oeil:hover { color: var(--texte); background: var(--bord); }
+.pg-ck-fond .pg-ck-nom { font-style: italic; }
+
+/* Le haut du panneau de droite reste en place quand on descend : le titre et la croix
+   pour fermer ne sont plus à aller rechercher tout en haut. */
+.pg-loupe-outils > .pg-loupe-tete {
+  position: sticky; top: -20px; z-index: 3;
+  margin: -20px -20px 0; padding: 16px 20px 12px;
+  background: var(--fond); border-bottom: 1px solid var(--bord);
+  border-radius: 16px 16px 0 0;
+}
+@media (max-width: 1180px) {
+  .pg-loupe-cadre { grid-template-columns: auto 360px; }
+  .pg-calques { display: none; }
+}
+@media (max-width: 820px) { .pg-loupe-cadre { grid-template-columns: minmax(0, 1fr); } }
+
+/* La phrase prend toute la largeur ; son bouton passe dessous. */
+
+/* Une image détourée se montre sur un damier : on voit qu'elle n'a plus de fond. */
+
+/* Le carrousel donné en exemple */
+
+/* Le nombre de slides : des choix rapides, ou un nombre libre */
+.pg-nombre { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pg-nombre-libre { display: inline-flex; align-items: center; gap: 8px; color: var(--texte-3); font-size: 13px; }
+.pg-nombre-libre .pg-champ { width: 78px; text-align: center; }
+
+/* ------------------------------------------------------------
+   L'ÉTAPE 5 DU REEL, DANS LE PARCOURS
+
+   La colonne centrale du constructeur vidéo (.bld-centre) est empruntée à la
+   page « Créer une vidéo » et posée dans #pg-corps. Elle y perd la hauteur
+   pleine d'une cellule de grille : on la remet en flux, alignée en haut, et
+   on borne l'aperçu pour qu'il laisse voir les actions sans faire défiler.
+   ------------------------------------------------------------ */
+/* Une seule largeur pour toute la colonne : l'aperçu, les boutons, les réglages
+   et la bande des vidéos s'alignent sur elle, centrés. Sans ça, chaque bloc
+   gardait la largeur qu'il avait sur la page à part — .bld-actions pleine
+   largeur, .rg-carte à 560 px collée à gauche, l'aperçu centré : trois bords
+   différents, et rien qui tombait juste. */
+/* L'aperçu se dimensionne sur SON CONTENU dès qu'une vidéo est là (.a-image), et cette
+   vidéo fait width:100% : lui laisser choisir sa largeur (align-self:center) les rend
+   circulaires et l'aperçu s'effondre à 1px. On lui donne donc une largeur explicite,
+   déduite de la hauteur qu'on lui accorde, et on le centre à la marge. */
+
+/* La bande des autres vidéos du projet, sous l'aperçu. Les mêmes cartes que la
+   colonne de gauche de la page à part, couchées en ligne et défilantes. */
+
+/* ------------------------------------------------------------
+   LA FENÊTRE DE CHOIX
+
+   Les listes de l'étape 3 s'allongent avec le projet. On en montre les plus
+   récentes, et « Voir tout » ouvre la grille entière ici — dans l'habillage
+   des fenêtres du studio, pour ne pas inventer un second style.
+   ------------------------------------------------------------ */
+
+/* Le bouton qui ouvre la fenêtre : une tuile de plus, à la fin de la grille. */
+
+/* La grille de la fenêtre : des cartes toutes identiques.
+
+   Sans ces règles, une seule vignette suffit à tout dérégler. En grille « 1fr »,
+   la largeur minimale d'une colonne est celle de son contenu le plus large : un
+   rendu sans description affichait son nom de fichier — un mot insécable de
+   soixante caractères — qui élargissait sa colonne, et son image, calée sur un
+   aspect-ratio, débordait la carte en suivant. D'où : une image carrée en
+   largeur pleine, un nom coupé à deux lignes et qui casse les mots, une
+   description à une ligne. Toutes les cartes font alors la même hauteur. */
+
+/* ============================================================
+   LE STORYBOARD (étape 4 d'un carrousel ou de stories)
+   Mis au point dans LABO/storyboard-carrousel/, installé le 23 septembre 2026.
+   ============================================================ */
+.pg-sb { display: grid; gap: 10px; container-type: inline-size; min-width: 0; }
+.pg-sb-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.pg-sb-h { font-size: 12px; font-weight: 600; color: var(--texte-2); letter-spacing: .1em; text-transform: uppercase; }
+.pg-sb-rythme { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--texte-3); flex-wrap: wrap; }
+.pg-sb-rythme i { display: inline-block; width: 20px; height: 8px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+/* La grille : quatre slides par ligne, qui passent à la ligne — rien ne défile, donc rien ne rogne le
+   liseré de la carte ouverte (qui dépasse de 5 px) ni la carte qui monte au survol. */
+.pg-sb-bande { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 14px; padding: 6px 0 4px; }
+.pg-sb-carte { min-width: 0; background: none; border: 0; padding: 0; text-align: left; display: grid; gap: 7px; align-content: start; cursor: pointer; color: inherit; font: inherit; }
+.pg-sb-carte .pg-sb-vue { outline: 2px solid transparent; outline-offset: 3px; transition: outline-color .15s, transform .15s; }
+.pg-sb-carte:hover .pg-sb-vue { transform: translateY(-2px); }
+.pg-sb-carte.on .pg-sb-vue { outline-color: var(--accent); }
+.pg-sb-carte-sous { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-size: 12px; color: var(--texte-2); }
+.pg-sb-carte-sous b { color: var(--texte); font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-sb-carte-sous .n { color: var(--texte-3); font-variant-numeric: tabular-nums; }
+.pg-sb-carte .puce { font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 1px 7px; border: 1px solid var(--bord-clair); color: var(--texte-2); white-space: nowrap; }
+.pg-sb-carte .puce.gen { color: #FF9EC0; border-color: rgba(244,75,123,.45); }
+
+/* ---------- REPRODUIRE UN CARROUSEL (pgEReproduire) ---------- */
+.pg-sb-carte .puce.ok { color: var(--ok); border-color: rgba(78,203,143,.4); }
+.pg-sb-carte .puce.refaire { color: var(--attention); border-color: rgba(255,184,77,.45); }
+.pg-sb-carte.verrou .n::after { content: " ·🔒"; font-size: 9px; }
+.pg-sb-plus .pg-sb-vue { aspect-ratio: var(--pg-ratio); border: 1px dashed var(--bord-clair); display: grid; place-items: center; font-size: 28px; color: var(--texte-3); background: none; box-shadow: none; }
+.pg-sb-plus:hover .pg-sb-vue { border-color: var(--accent); color: var(--texte); }
+.pg-sb-note { margin: 0; font-size: 12.5px; color: var(--texte-3); max-width: 90ch; }
+.pg-sb-note b { color: var(--texte-2); font-weight: 600; }
+
+/* Une slide : composée (la vraie page, réduite) ou en croquis. */
+.pg-sb-vue { position: relative; border-radius: 10px; overflow: hidden; background: var(--panneau-2); box-shadow: 0 8px 24px rgba(0,0,0,.35); flex: none; }
+.pg-sb-vue iframe { border: 0; transform-origin: 0 0; pointer-events: none; display: block; }
+.pg-sb-vue > .pg-cq { position: absolute; inset: 0; }
+
+/* Le croquis : tout en unités de conteneur, le même dessin en vignette et en grand. */
+.pg-cq { container-type: inline-size; overflow: hidden; font-family: "DM Sans", var(--titres); }
+.pg-cq-in { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 7cqw; gap: 3cqw; }
+.pg-cq-role { font: 600 3.4cqw/1 var(--titres); letter-spacing: .14em; text-transform: uppercase; opacity: .75; min-height: 3.4cqw; }
+.pg-cq-titre { font: 800 9.6cqw/1 var(--pg-cq-titres, var(--titres)); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.pg-cq-texte { font-size: 4.2cqw; line-height: 1.35; opacity: .85; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
+.pg-cq-in.texte .pg-cq-titre { font-size: 12cqw; margin-top: auto; }
+.pg-cq-images { flex: 1 0 40%; display: grid; gap: 2.4cqw; min-height: 0; }
+.pg-cq-img { position: relative; border-radius: 3cqw; min-height: 0; display: grid; place-items: center; text-align: center; padding: 3cqw; overflow: hidden;
+  background: repeating-linear-gradient(135deg, var(--motif) 0 1.2cqw, transparent 1.2cqw 3.4cqw); }
+.pg-cq-img.photo { background-color: rgba(0,0,0,.18); box-shadow: inset 0 0 0 .5cqw rgba(0,0,0,.12); }
+/* Une image importée et POSÉE se montre ENTIÈRE : un croquis ne doit jamais faire croire qu'elle sera coupée. */
+.pg-cq-img.fichier { background: var(--img) center / contain no-repeat; box-shadow: none; padding: 0; }
+.pg-cq-img span, .pg-cq-fond > span { font-size: 3.6cqw; line-height: 1.25; font-weight: 500; opacity: .9; max-width: 90%; }
+.pg-cq-qui { position: absolute; right: 2.5cqw; top: 2.5cqw; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1.5cqw; z-index: 2; }
+.pg-cq-qui em { font-style: normal; font-size: 3cqw; font-weight: 600; border-radius: 99px; padding: .6cqw 2.2cqw .6cqw .8cqw;
+  display: inline-flex; align-items: center; gap: 1.2cqw; background: rgba(0,0,0,.58); color: #fff; }
+.pg-cq-qui em::before { content: ""; width: 4.4cqw; height: 4.4cqw; border-radius: 50%; background: var(--vignette, none) 50% 20% / cover no-repeat, #ddd; }
+.pg-cq-qui em.objet::before { display: none; }
+.pg-cq-qui em.objet { padding-left: 2.2cqw; }
+/* Une image en PLEIN CADRE devient le fond ; le texte, et les autres images, se posent dessus. */
+.pg-cq-fond { position: absolute; inset: 0; display: grid; place-items: center; background-color: #6b4a3a;
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.07) 0 1.2cqw, transparent 1.2cqw 3.4cqw); color: #fff; text-align: center; }
+.pg-cq-fond.fichier { background: var(--img) center / cover no-repeat; }
+.pg-cq-fond::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.08) 58%, rgba(0,0,0,.28)); }
+.pg-cq-fond > span { position: relative; z-index: 1; }
+.pg-cq-in.surfond { color: #fff; }
+.pg-cq-in.surfond > :not(.pg-cq-fond) { position: relative; z-index: 1; }
+.pg-cq-in.surfond .pg-cq-images { flex: 0 1 36%; }
+.pg-cq-bas { display: grid; gap: 3cqw; }
+.pg-cq-in.surfond .pg-cq-bas { margin-top: auto; }
+
+/* La slide ouverte : dans le panneau de la fenêtre, une seule colonne — les outils et la raison de
+   Claude en tête, puis les trois questions. L'aperçu vit dans la scène en Cover Flow. */
+.pg-sb-ouverte { display: grid; gap: 4px; min-width: 0; }
+.pg-sb-apercu { display: grid; gap: 10px; min-width: 0; margin-bottom: 12px; }
+.pg-sb-outils { display: flex; gap: 6px; }
+.pg-sb-claude { font-size: 12.5px; color: var(--texte-2); background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 10px; padding: 9px 11px; }
+.pg-sb-claude b { color: var(--accent); font-weight: 600; }
+.pg-sb-questions { min-width: 0; }
+.pg-sb-q { border-top: 1px solid var(--bord); padding: 16px 0 18px; display: grid; gap: 8px; }
+.pg-sb-q:first-child { border-top: 0; padding-top: 0; }
+.pg-sb-q h3 { margin: 0 0 2px; font-size: 15px; font-weight: 600; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.pg-sb-q h3 small { font-size: 12px; font-weight: 400; color: var(--texte-3); }
+.pg-sb-q .pg-plan-role { background: none; border: 0; padding: 0; width: 100%; }
+.pg-sb-q .pg-plan-role:focus { outline: none; }
+.pg-sb-titre { font-weight: 600; font-size: 15.5px; resize: none; overflow: hidden; min-height: 0; }
+.pg-sb-aide { font-size: 12.5px; color: var(--texte-3); margin: 0; }
+.pg-sb-aide.pg-sb-sans { padding: 10px 12px; border: 1px dashed var(--bord-clair); border-radius: 10px; color: var(--texte-2); }
+.pg-sb-aide.pg-sb-sans b { color: var(--texte); font-weight: 600; }
+.pg-sb-couleurs { display: flex; gap: 12px; flex-wrap: wrap; }
+.pg-sb-couleur { display: grid; justify-items: center; gap: 5px; background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--texte-2); cursor: pointer; }
+.pg-sb-couleur i { width: 44px; height: 44px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); outline: 2px solid transparent; outline-offset: 3px; }
+.pg-sb-couleur.on i { outline-color: var(--accent); }
+.pg-sb-couleur.on { color: var(--texte); font-weight: 600; }
+.pg-sb-segments { display: inline-flex; flex-wrap: wrap; gap: 4px; background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 12px; padding: 4px; justify-self: start; }
+.pg-sb-segments button { background: none; border: 0; border-radius: 9px; padding: 7px 12px; color: var(--texte-2); font: inherit; font-size: 13px; cursor: pointer; }
+.pg-sb-segments button.on { background: var(--accent); color: #14060d; font-weight: 600; }
+
+/* Une image de la slide */
+.pg-sb-image { background: var(--panneau-2); border: 1px solid var(--bord); border-radius: 12px; padding: 12px; display: grid; gap: 10px; min-width: 0; }
+.pg-sb-image-tete { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; color: var(--texte-2); font-weight: 600; }
+.pg-sb-image-tete > span { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.pg-sb-badge { font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 1px 8px; border: 1px solid var(--bord-clair); color: var(--texte-2); }
+.pg-sb-badge.gen { color: #FF9EC0; border-color: rgba(244,75,123,.45); }
+.pg-sb-badge.plein { color: var(--texte); border-color: var(--texte-3); }
+.pg-sb-reglages { display: flex; gap: 8px 12px; flex-wrap: wrap; }
+.pg-sb-mini { display: inline-flex; gap: 2px; background: var(--fond); border: 1px solid var(--bord); border-radius: 9px; padding: 3px; }
+.pg-sb-mini button { background: none; border: 0; border-radius: 7px; padding: 4px 10px; font: inherit; font-size: 12.5px; color: var(--texte-2); cursor: pointer; }
+.pg-sb-mini button.on { background: var(--panneau); color: var(--texte); font-weight: 600; box-shadow: inset 0 0 0 1px var(--accent); }
+.pg-sb-repro { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pg-sb-image textarea { resize: none; overflow: hidden; }
+.pg-sb-ajouts { display: flex; gap: 8px; flex-wrap: wrap; }
+.pg-sb-ajout { background: none; border: 1px dashed var(--bord-clair); border-radius: 10px; padding: 7px 12px; color: var(--texte-2); font: inherit; font-size: 13px; cursor: pointer; }
+.pg-sb-ajout:hover { border-color: var(--accent); color: var(--texte); }
+.pg-sb-depot { display: block; border: 1px dashed var(--bord-clair); border-radius: 12px; padding: 18px; text-align: center; color: var(--texte-2); font-size: 13px; cursor: pointer; }
+.pg-sb-depot:hover, .pg-sb-depot.survol { border-color: var(--accent); color: var(--texte); }
+.pg-sb-depot input, .pg-sb-lien input { display: none; }
+.pg-sb-mienne { display: grid; gap: 8px; }
+.pg-sb-mienne.envoi { opacity: .5; pointer-events: none; }
+.pg-sb-depose { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pg-sb-depose > i { width: 64px; height: 80px; border-radius: 8px; background: var(--img) center / contain no-repeat, var(--fond); flex: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.pg-sb-depose > span { font-size: 12.5px; color: var(--texte-2); }
+.pg-sb-nom { flex: 1; min-width: 140px; font-weight: 600; }
+.pg-sb-lien { background: none; border: 0; padding: 0; font: inherit; font-size: 12.5px; color: var(--accent); cursor: pointer; }
+.pg-sb-lien:hover { text-decoration: underline; }
+.pg-sb-deja { display: flex; gap: 8px; flex-wrap: wrap; }
+.pg-sb-deja button { display: grid; justify-items: center; gap: 4px; width: 84px; background: var(--fond); border: 1px solid var(--bord); border-radius: 10px; padding: 6px; font: inherit; font-size: 11px; color: var(--texte-2); cursor: pointer; }
+.pg-sb-deja button:hover { border-color: var(--accent); }
+.pg-sb-deja i { width: 64px; height: 64px; border-radius: 6px; background: center / contain no-repeat; }
+.pg-sb-deja span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Qui est dedans ? */
+
+/* L'éditeur d'une slide, dans une fenêtre du studio par-dessus la page */
+/* Au niveau de la loupe (70) : sous les fenêtres de confirmation du studio (.fen, 90) — retirer une image,
+   annoncer le coût d'une génération — qui doivent passer par-dessus. */
+/* La même forme que la loupe de l'étape 5 : la scène en Cover Flow à gauche, le panneau à droite. */
+.pg-sb-fenetre { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 24px; overflow: auto; }
+.pg-sb-fenetre-voile { position: fixed; inset: 0; background: rgba(13,8,22,.8); backdrop-filter: blur(4px); }
+.pg-sb-cadre { position: relative; display: grid; grid-template-columns: auto 460px; gap: 24px; align-items: center; max-width: 100%;
+  animation: monte .3s cubic-bezier(.22,.9,.24,1) both; }
+.pg-sb-scene { position: relative; display: grid; place-items: center; }
+.pg-sb-scene .pg-cf-slide { background: var(--panneau-2); }
+.pg-sb-scene .pg-cf-slide .pg-sb-vue { border-radius: 0; box-shadow: none; }
+.pg-sb-scene .pg-sb-vue iframe { pointer-events: none !important; }
+.pg-sb-scene .pg-cf-slide.ici { cursor: default; }
+.pg-sb-panneau { position: relative; z-index: 2; padding: 18px 20px 22px; border-radius: 16px; border: 1px solid var(--bord-clair); background: var(--panneau);
+  max-height: calc(100vh - 48px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--bord-clair) transparent;
+  box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.pg-sb-panneau::-webkit-scrollbar { width: 10px; }
+.pg-sb-panneau::-webkit-scrollbar-thumb { background: var(--bord-clair); border-radius: 99px; border: 3px solid var(--panneau); }
+/* Comme à l'étape 5 (.pg-loupe-tete) : le titre et la croix restent en haut quand on descend dans le
+   panneau — (27 sept. 2026), il fallait remonter tout en haut pour fermer. */
+.pg-sb-panneau-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -18px -20px 12px;
+  position: sticky; top: -18px; z-index: 3; padding: 14px 20px 12px;
+  background: var(--panneau); border-bottom: 1px solid var(--bord); border-radius: 16px 16px 0 0; }
+.pg-sb-panneau-tete h3 { margin: 0; font-family: var(--titres); font-size: 17px; }
+.pg-sb-panneau-tete h3 small { font-size: 13px; font-weight: 500; color: var(--texte-3); }
+.pg-sb-fenetre-fermer { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--bord-clair);
+  background: var(--panneau-2); color: var(--texte-2); font-size: 20px; line-height: 1; cursor: pointer; }
+.pg-sb-fenetre-fermer:hover { color: var(--texte); border-color: var(--accent); }
+/* En dessous de 980 px, le panneau passe SOUS la scène ; la fenêtre entière défile. */
+@media (max-width: 980px) {
+  .pg-sb-fenetre { place-items: start center; padding: 16px 12px; }
+  .pg-sb-cadre { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .pg-sb-panneau { max-height: none; width: min(560px, 100%); overflow: visible; }
+  /* ici c'est la fenêtre entière qui défile : l'en-tête colle à SON haut */
+  .pg-sb-panneau-tete { top: 0; }
+}
+
+/* La barre : ce qui reste à générer */
+.pg-sb-barre { display: grid; gap: 10px; background: var(--panneau); border: 1px solid var(--bord); border-radius: 14px; padding: 14px 16px; }
+.pg-sb-barre-txt { margin: 0; font-size: 13.5px; color: var(--texte-2); }
+.pg-sb-barre-txt b { color: var(--texte); }
+.pg-sb-barre .pg-btn { justify-self: start; }
+
+/* ============================================================
+   VOIX & SON — le studio son (app/js/son.js), maquette : LABO/studio-son
+   Trois colonnes, comme les créateurs : les voix et la sonothèque, l'écoute, les réglages.
+   ============================================================ */
+
+/* Les voix des avatars */
+/* Les planches d'identité sont en largeur, le visage en gros plan à droite : on cadre sur lui. */
+
+/* La sonothèque */
+
+/* ---------- Au centre ---------- */
+
+/* Les sous-titres, en aperçu (Magnific en rend 30 styles ; huit sont montrés) */
+
+/* ---------- À droite ---------- */
+/* Une plateforme qui ne sait pas faire : visible, grisée, sa raison au survol et dessous */
+
+/* La fenêtre « La voix de … » */
+/* Une zone où l'on peut glisser un fichier son */
+
+/* Page Vidéo : le passage vers Voix & son */
+
+/* ============================================================
+   LA PAGE MONTAGE (app/js/montage.js, 25 sept. 2026) — du Reel fini au projet CapCut.
+   Maquette : LABO/montage-studio. Trois colonnes comme Voix & son : les étapes, l'étape en cours, le détail.
+   ============================================================ */
+.mt-lien { border: 0; background: none; color: var(--accent); font: inherit; font-size: 12.5px; padding: 0; cursor: pointer; }
+/* la carte d'un Reel à l'accueil : « Monter » */
+
+/* ---------- LE MODULE « UN REEL OU UN TIKTOK » (reel.js, 26 sept. 2026 ; maquette LABO/reel-studio) — préfixe rs- ---------- */
+.portes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1180px) and (min-width: 821px) { .portes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---------- Module Reel : les formats et la DA (26 sept. 2026 ; maquette LABO/reel-studio/formats.html) ---------- */
+.da { border: 1px solid var(--bord); border-radius: 12px; background: var(--panneau); padding: 10px 12px; cursor: pointer; display: grid; gap: 6px; align-content: start; }
+.da.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.da b { font-size: 13.5px; } .da small { color: var(--texte-3); font-size: 11.5px; }
+
+/* ---------- Module Reel : l'analyse d'un Reel déposé (reproducteur, 26 sept. 2026) ---------- */
+/* les effets de l'analyse : un nom par repère, rangés sur des lignes sans chevauchement (rsPlacerEffets) */
+
+/* ---------- Module Reel : le découpage de TOUT le Reel (4 sortes de plans), les objets détourés, les captures ---------- */
+
+/* ---------- Module Reel : le découpage en storyboard (26 sept. 2026) — le script à gauche, ce qu'on voit à droite ---------- */
+/* les cases des images pas encore générées : une icône et la description, sans débordement */
+
+/* ---------- Module Reel (26 sept. 2026) : « propose-moi autre chose » dans le découpage, le prompt avant de générer, l'import ---------- */
+/* le détourage d'un objet de carte, à refaire autrement (26 sept. 2026) */
+/* les phrases que couvre une génération vidéo (26 sept. 2026) */
+/* les fonds d'une DA (26 sept. 2026) : vignettes, éditeur, choix dans le découpage */
+.daf-grain { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E") !important; }
+.daf { display: grid; gap: 12px; }
+.daf-ligne { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; align-items: start; }
+.daf-vignette { width: 72px; aspect-ratio: 9/16; border-radius: 8px; border: 1px solid var(--bord, rgba(255,255,255,.12)); }
+.daf-texte { display: grid; gap: 5px; justify-items: start; font-size: 13.5px; }
+.daf-texte small, .daf-etat { color: var(--texte-3, #8a8a93); font-size: 12.5px; }
+.daf-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.daf-message { font-size: 12.5px; color: var(--accent, #F44B7B); }
+/* ---------- Ce qu'on entend (26 sept. 2026) : les bruitages dans le découpage, et la fenêtre « Mes sons » ---------- */
+.ms { position: fixed; inset: 0; z-index: 88; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: 16px; }
+/* chaque bruitage sur deux lignes : le son, puis le mot, le volume et la croix */
+/* ---------- Là où l'action se voit (26 sept. 2026) ---------- */
+/* le détail de droite suit l'écran : ce qu'un clic y montre est toujours sous les yeux */
+/* le bandeau de la tâche, posé à l'endroit de l'action */
+/* la note de la colonne de droite passe AVANT le détail : le détail, collé à l'écran, peut aller jusqu'en bas */
+/* « hidden » faisait du cadre un conteneur de défilement : le détail collant ne collait plus. « clip » coupe pareil, sans ça. */
+/* « livré avec le studio » : la case de chaque son dans « Mes sons » */
+/* l'entrée « Mes sons » dans l'onglet Voix & son */
+/* « Quand l'utiliser » : la consigne du créateur, sous chaque son */
+
+/* ---------- La porte « Un Reel monté de A à Z » : le clap et la pellicule (26 sept. 2026, maquette LABO/accueil-portes, piste G) ---------- */
+/* les stories, recentrées : 3 × 62 px débordaient de la carte à droite quand l'accueil a 4 colonnes */
+/* la ligne du bas des portes : « Vidéo · 9:16 · 9 étapes » d'un seul tenant ; « Commencer → » passe dessous s'il n'a pas la place */
+/* les portes plus larges que la colonne de l'accueil (1020 px) : la même largeur que la maquette (LABO/accueil-portes),
+   des cartes presque carrées au lieu de colonnes étroites et hautes (26 sept. 2026) */
+
+/* =============================================================================
+   VOS OUTILS À L'ACCUEIL (26 sept. 2026, maquette LABO/accueil-outils ; avatars : piste E assombrie).
+   Cinq cartes sous les portes : Avatars, Environnements, Packshots, Atelier, Voix & son. Préfixes po- et pa-.
+   ============================================================================= */
+/* ---------- la rangée des outils : cinq cartes, sous les quatre portes ---------- */
+
+/* ---------- Environnement : un lieu dans son cadre — ciel, soleil, deux reliefs ---------- */
+
+/* ---------- Packshot : le produit sur son socle, sous la lumière du studio ---------- */
+
+/* ---------- Atelier : on écrit la demande, l'image sort ---------- */
+
+/* ---------- Voix & son : le micro, et l'onde qui s'anime au survol ---------- */
+
+/* E · Le groupe en relief et ses étincelles (d'après deux images : trois bustes 3D lisses,
+   et des étoiles à quatre branches irisées) — aux couleurs du studio : orange, pêche et blanc. */
+/* les deux de côté : orange franc, plus petits, derrière */
+/* celui du milieu : pâle et lumineux, devant */
+/* un liseré de lumière sous chaque tête, comme sur l'image */
+/* les étincelles : une étoile à quatre branches creusées, irisée orange / pêche / blanc */
+
+/* =============================================================================
+   LA PAGE INSTALLATION (26 sept. 2026) — préfixe ins-. Le studio s'installe lui-même, sans terminal.
+   ============================================================================= */
+.ins { max-width: 860px; margin: 0 auto; padding: 34px 20px 70px; }
+@keyframes ins-pouls { 50% { opacity: .3; transform: scale(.7); } }
+
+/* ---------- La mise à jour disponible (bandeau de l'accueil, insMaj) ---------- */
+
+/* ---------- Le format, en vitrine (27 sept. 2026 — piste A de LABO/etape-format) ----------
+   Deux colonnes de cartes ; chaque carte : un petit téléphone qui joue le format (ftl-), le nom, une phrase, des puces,
+   une frise fine sans texte. Le détail du format choisi est dans la colonne de droite (fv-choisi). */
+/* la colonne de droite : le format choisi */
+
+/* le petit téléphone qui joue le format : la barre de progression d'une story = la structure du format */
+
+/* ============================================================
+   VOS DA — le module des directions artistiques (27 sept. 2026 ; js/da.js ; maquette LABO/module-da, pistes B et C)
+   dam- la page et la galerie · dap- les aperçus sur chaque support · dpl- la planche · dtr- le tiroir · dcr- la création
+   ============================================================ */
+/* six cartes d'outils à l'accueil : une rangée sur grand écran */
+/* la carte « Vos DA » : deux supports et la palette */
+
+/* le bandeau quand un module nous a envoyés (le carrousel, les stories, le Reel) */
+.dam-retour { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; margin-bottom: 14px; border-radius: 12px; border: 1px solid rgba(244,75,123,.4); background: rgba(244,75,123,.07); font-size: 13.5px; color: var(--texte-2); }
+.dam-retour b { color: var(--texte); }
+.dam-retour .btn-mini { margin-left: auto; }
+
+/* ---------- la galerie ---------- */
+.dam-tete { display: flex; align-items: end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.dam-tete h1 { font: 800 28px/1.2 var(--titres); margin: 0; }
+.dam-tete p { margin: 4px 0 0; color: var(--texte-2); font-size: 14px; max-width: 64ch; }
+.dam-tete .pg-btn { margin-left: auto; }
+.dam-grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 1100px) { .dam-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .dam-grille { grid-template-columns: minmax(0, 1fr); } }
+.dam-carte { display: grid; padding: 0; text-align: left; font: inherit; color: inherit; border-radius: 18px; border: 1px solid var(--bord); background: var(--panneau); overflow: hidden; cursor: pointer; transition: box-shadow .2s, border-color .2s; }
+/* le survol éclaire la carte sans la soulever : soulevée, elle quittait la souris posée sur son bord et clignotait (2 oct. 2026, comme .card) */
+.dam-carte:hover { box-shadow: 0 10px 28px rgba(0,0,0,.45); border-color: var(--bord-clair); }
+.dam-vitrine { position: relative; height: 210px; display: flex; align-items: end; justify-content: center; gap: 10px; padding: 18px 18px 0; overflow: hidden; }
+.dam-vitrine .dap { width: 108px; border-radius: 10px 10px 0 0; }
+.dam-vitrine .dap.slide { width: 128px; }
+.dam-vitrine .dap:nth-child(1) { transform: translateY(18px) rotate(-5deg); }
+.dam-vitrine .dap:nth-child(3) { transform: translateY(18px) rotate(5deg); }
+.dam-bas { padding: 14px 16px 16px; display: grid; gap: 6px; border-top: 1px solid var(--bord); }
+.dam-bas b, .dcr-bas b { font: 700 16px/1.2 var(--titres); display: flex; align-items: center; gap: 8px; }
+.dam-pastilles { display: flex; gap: 4px; margin-left: auto; flex: none; }
+.dam-pastilles i { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,.15); }
+.dam-polices { font-size: 12.5px; color: var(--texte-2); }
+.dam-bas small { font-size: 12px; color: var(--texte-3); }
+.dam-plus { place-items: center; align-content: center; gap: 8px; min-height: 300px; border: 1.5px dashed rgba(244,75,123,.5); background: rgba(244,75,123,.03); color: var(--accent); text-align: center; padding: 20px; }
+.dam-plus span { font-size: 40px; line-height: 1; }
+.dam-plus b { font: 700 16px/1.2 var(--titres); }
+.dam-plus small { color: var(--texte-3); font-size: 12.5px; max-width: 26ch; }
+
+/* ---------- les aperçus : la DA posée sur chaque support ---------- */
+.dap { --f: #111; --t: #fff; --a: #F44B7B; --s: #333; --ft: Poppins; --fx: Poppins; position: relative; overflow: hidden; border-radius: 12px; background: var(--f); color: var(--t); text-align: left;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 18px 40px -20px rgba(0,0,0,.9); container-type: inline-size; flex: none; display: block; }
+.dap.slide { aspect-ratio: 4/5; } .dap.story, .dap.carte, .dap.sous { aspect-ratio: 9/16; }
+.dap-fond { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.dap-grain::after { content: ""; position: absolute; inset: 0; opacity: .18; mix-blend-mode: overlay; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.dap-logo { position: absolute; z-index: 4; width: 11cqw; aspect-ratio: 1; background: center/contain no-repeat; }
+.dap-titre, .dap-geant { font-family: var(--ft), sans-serif; font-weight: 800; line-height: .92; letter-spacing: -.01em; text-transform: uppercase; }
+.dap-titre em { font-style: normal; color: var(--a); }
+.dap-txt { font-family: var(--fx), sans-serif; line-height: 1.3; opacity: .85; }
+.dap.slide .dap-vis { position: absolute; left: 8cqw; right: 8cqw; top: 8cqw; height: 52%; border-radius: 3cqw; background-size: 150%; background-position: 50% 10%; box-shadow: 0 2cqw 6cqw rgba(0,0,0,.45); }
+.dap.slide .dap-titre { position: absolute; left: 8cqw; right: 8cqw; bottom: 17cqw; font-size: 12.5cqw; }
+.dap.slide .dap-txt { position: absolute; left: 8cqw; right: 16cqw; bottom: 6cqw; font-size: 4.2cqw; }
+.dap.slide .dap-fleche { position: absolute; right: 8cqw; bottom: 5cqw; color: var(--a); font: 800 8cqw/1 Poppins, sans-serif; }
+.dap.slide .dap-logo { right: 8cqw; top: 8cqw; filter: drop-shadow(0 1px 3px rgba(0,0,0,.6)); }
+.dap.story .dap-lab { position: absolute; left: 7cqw; top: 9cqw; font: 600 3.6cqw/1 ui-monospace, Consolas, monospace; letter-spacing: .25em; color: var(--a); }
+.dap.story .dap-titre { position: absolute; left: 7cqw; right: 7cqw; top: 30%; font-size: 14cqw; }
+.dap.story .dap-txt { position: absolute; left: 7cqw; right: 7cqw; top: 56%; font-size: 4.6cqw; }
+.dap.story .dap-bouton { position: absolute; left: 7cqw; right: 7cqw; bottom: 16cqw; background: var(--a); color: var(--f); font: 800 5cqw/1 var(--ft), sans-serif; padding: 5cqw; border-radius: 2cqw; text-transform: uppercase; display: flex; justify-content: space-between; }
+.dap.story .dap-logo { left: 7cqw; bottom: 5cqw; }
+.dap.story .dap-halo { position: absolute; inset: 0; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--a) 22%, transparent), transparent 55%); }
+.dap.carte .dap-geant { position: absolute; left: 6cqw; right: 6cqw; top: 13%; font-size: 17cqw; text-align: center; }
+.dap.carte .dap-objet { position: absolute; left: 50%; top: 55%; width: 56cqw; aspect-ratio: 1; transform: translate(-50%, -50%) rotate(-5deg); border-radius: 4cqw; background: #fff 50% 12%/150%; box-shadow: 0 4cqw 10cqw rgba(0,0,0,.5); border: 2cqw solid #fff; }
+.dap.sous .dap-video { position: absolute; inset: -4%; background-size: 260%; background-position: 50% 8%; }
+.dap.sous .dap-video::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.4), transparent 50%); }
+.dap-st { position: absolute; z-index: 3; left: 5cqw; right: 5cqw; bottom: 24%; display: grid; justify-items: center; gap: 1cqw; text-align: center; font-family: Poppins, sans-serif; font-weight: 700; text-transform: uppercase; color: #fff;
+  text-shadow: .5cqw .6cqw 0 rgba(0,0,0,.9); }
+.dap-st span { font-size: 6.5cqw; line-height: 1.1; }
+.dap-st b { font-size: 15cqw; line-height: 1; font-weight: 700; }
+.dap-leg { position: absolute; left: 0; right: 0; bottom: -22px; text-align: center; font-size: 11.5px; color: color-mix(in srgb, var(--t) 55%, transparent); font-family: Poppins, sans-serif; }
+
+/* ---------- la planche : la DA dans ses propres couleurs et polices ---------- */
+.dpl { --f: #111; --t: #fff; --a: #F44B7B; --s: #333; --ft: Poppins; --fx: Poppins; background: var(--f); color: var(--t); padding: 28px; border-radius: 22px; border: 1px solid color-mix(in srgb, var(--t) 12%, transparent); }
+.dpl-haut { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+.dpl-retour { font: 600 13px Poppins, sans-serif; color: color-mix(in srgb, var(--t) 60%, transparent); background: none; border: 0; cursor: pointer; padding: 6px 0; }
+.dpl-retour:hover { color: var(--t); }
+.dpl-nom { font: 800 40px/1 var(--ft), sans-serif; text-transform: uppercase; margin: 0 6px 0 4px; letter-spacing: -.01em; cursor: text; }
+.dpl-nom em { font-style: normal; color: var(--a); }
+.dpl-etat { font: 12px Poppins, sans-serif; color: color-mix(in srgb, var(--t) 55%, transparent); }
+.dpl-btn { font: 600 13px Poppins, sans-serif; color: var(--t); background: color-mix(in srgb, var(--t) 8%, transparent); border: 1px solid color-mix(in srgb, var(--t) 18%, transparent); border-radius: 10px; padding: 8px 14px; cursor: pointer; }
+.dpl-btn:hover { border-color: color-mix(in srgb, var(--t) 40%, transparent); }
+.dpl-dup { margin-left: auto; }
+.dpl-bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 118px; gap: 12px; }
+.dpl-tuile { position: relative; border-radius: 18px; padding: 16px; overflow: hidden; background: color-mix(in srgb, var(--t) 5%, var(--f)); border: 1px solid color-mix(in srgb, var(--t) 10%, transparent); cursor: pointer; transition: border-color .2s; min-width: 0; }
+.dpl-tuile:hover, .dpl-tuile:focus-visible { border-color: var(--a); outline: none; }
+.dpl-tuile:hover .dpl-crayon, .dpl-tuile:focus-visible .dpl-crayon { opacity: 1; }
+.dpl-crayon { position: absolute; z-index: 6; right: 12px; top: 12px; font: 600 11.5px/1 Poppins, sans-serif; color: var(--f); background: var(--a); border-radius: 999px; padding: 6px 10px; opacity: 0; transition: opacity .2s; }
+.dpl-etq { font: 600 10.5px/1 ui-monospace, Consolas, monospace; letter-spacing: .18em; text-transform: uppercase; color: color-mix(in srgb, var(--t) 55%, transparent); position: relative; z-index: 3; }
+.dpl-palette { grid-column: span 3; grid-row: span 2; display: grid; grid-template-rows: auto 1fr; gap: 12px; }
+.dpl-sw { display: grid; grid-template-columns: 2fr 1.3fr 1fr 1fr; gap: 8px; }
+.dpl-sw div { border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: end; font: 600 12px/1.3 Poppins, sans-serif; box-shadow: inset 0 0 0 1px rgba(128,128,128,.25); min-width: 0; }
+.dpl-sw span { font: 500 10.5px ui-monospace, Consolas, monospace; opacity: .8; }
+.dpl-typo { grid-column: span 3; grid-row: span 2; display: grid; grid-template-rows: auto 1fr auto; }
+.dpl-grand { font: 800 88px/.9 var(--ft), sans-serif; align-self: center; }
+.dpl-grand em { font-style: normal; color: var(--a); }
+.dpl-typo-bas { display: flex; justify-content: space-between; gap: 12px; font-family: var(--fx), sans-serif; font-size: 14px; align-items: end; }
+.dpl-typo-bas small { display: block; font: 500 10.5px ui-monospace, Consolas, monospace; opacity: .6; }
+.dpl-ton { grid-column: span 3; grid-row: span 2; display: grid; align-content: space-between; gap: 10px; }
+.dpl-ton p { margin: 0; font: 600 16px/1.45 var(--fx), sans-serif; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.dpl-logo { grid-column: span 1; grid-row: span 2; display: grid; place-items: center; }
+.dpl-logo div { width: 72%; aspect-ratio: 1; background: center/contain no-repeat; }
+.dpl-illu { grid-column: span 4; grid-row: span 2; display: grid; grid-template-columns: 1fr 1.3fr; gap: 14px; }
+.dpl-vis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.dpl-vis div { border-radius: 10px; background: center/cover; }
+.dpl-vis div.vide { border: 1.5px dashed color-mix(in srgb, var(--t) 25%, transparent); }
+.dpl-illu p { margin: 8px 0 0; font: 13px/1.5 var(--fx), sans-serif; opacity: .85; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.dpl-design { display: block; margin-top: 8px; font: 12px var(--fx), sans-serif; opacity: .6; }
+.dpl-fonds { grid-column: span 2; grid-row: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; }
+.dpl-fonds > div { border-radius: 10px; background: center/cover; position: relative; display: grid; align-content: end; padding: 8px; font: 600 11px/1.2 Poppins, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.dpl-fonds > div.vide { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t) 18%, transparent); }
+.dpl-fonds small { display: block; font-weight: 400; opacity: .7; }
+.dpl-elements { grid-column: span 6; grid-row: span 2; display: grid; align-content: space-between; gap: 10px; }
+.dpl-elements p { margin: 0; font-size: 13px; color: var(--t2, inherit); opacity: .8; }
+.dpl-el { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.dpl-el span { width: 58px; height: 58px; border-radius: 10px; background: rgba(0,0,0,.25) center/contain no-repeat; }
+.dpl-el b { font-size: 14px; opacity: .7; }
+.dtr-el-det { font-size: 12.5px; color: var(--texte-2); display: inline-flex; gap: 6px; align-items: center; }
+.dtr-el-liste { display: grid; gap: 10px; margin-top: 12px; }
+.dtr-el { display: grid; grid-template-columns: 76px 1fr 24px; gap: 10px; align-items: start; padding: 8px; border: 1px solid var(--bord); border-radius: 12px; }
+.dtr-el > span { width: 76px; height: 76px; border-radius: 9px; background: var(--fond) center/contain no-repeat; }
+.dtr-el > div { display: grid; gap: 6px; }
+.dtr-el .pg-champ { padding: 6px 9px; font-size: 12.5px; }
+.dtr-el-x { width: 24px; height: 24px; border-radius: 50%; border: 0; background: var(--fond); color: var(--texte-2); cursor: pointer; }
+.dpl-montage { grid-column: span 6; grid-row: span 3; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: auto 1fr; gap: 0 22px; }
+.dpl-montage > .dpl-etq { grid-column: 1 / -1; }
+.dpl-regles { display: grid; align-content: start; gap: 10px; font: 13.5px/1.45 var(--fx), sans-serif; margin-top: 14px; }
+.dpl-regles div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid color-mix(in srgb, var(--t) 12%, transparent); padding-bottom: 8px; }
+.dpl-regles span { opacity: .6; } .dpl-regles b { text-align: right; } .dpl-regles small { font-weight: 400; opacity: .6; }
+.dpl-supports { display: flex; gap: 14px; align-items: start; justify-content: end; margin-top: 10px; }
+.dpl-supports .dap { width: 140px; } .dpl-supports .dap.slide { width: 180px; }
+.dpl-branche { grid-column: span 6; grid-row: span 1; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; font: 13px Poppins, sans-serif; cursor: default; }
+.dpl-branche:hover { border-color: color-mix(in srgb, var(--t) 10%, transparent); }
+.dpl-branche span { display: flex; align-items: center; gap: 7px; opacity: .85; }
+.dpl-branche i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); } .dpl-branche i.b { background: var(--attention); }
+@media (max-width: 1100px) {
+  .dpl-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .dpl-bento > .dpl-tuile { grid-column: span 2; grid-row: auto; min-height: 150px; }
+  .dpl-montage, .dpl-illu { grid-template-columns: minmax(0, 1fr); }
+  .dpl-supports { justify-content: start; flex-wrap: wrap; }
+}
+
+/* ---------- le tiroir : une tuile à la fois ---------- */
+.dpl-tiroir { position: fixed; z-index: 60; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); overflow: auto; background: var(--panneau); color: var(--texte); border-left: 1px solid var(--bord);
+  padding: 22px; box-shadow: -30px 0 60px rgba(0,0,0,.5); display: grid; align-content: start; gap: 12px; transform: translateX(105%); transition: transform .3s cubic-bezier(.2,.9,.3,1); }
+.dpl-tiroir.ouvert { transform: none; }
+.dtr-tete { display: flex; align-items: center; justify-content: space-between; }
+.dtr-tete h3 { font: 700 18px/1.2 var(--titres); margin: 0; }
+.dtr-tete button { background: none; border: 0; color: var(--texte-3); font-size: 24px; line-height: 1; cursor: pointer; }
+.dtr-tete button:hover { color: var(--texte); }
+.dtr-etat { font-size: 12px; color: var(--texte-3); min-height: 16px; }
+.dtr-aide { font-size: 12.5px; color: var(--texte-3); line-height: 1.5; margin: 0; }
+.dtr-aide b { color: var(--attention); font-weight: 600; }
+.dtr-etq { font-size: 12.5px; font-weight: 600; color: var(--texte-2); margin-top: 4px; }
+.dtr-etq small { font-weight: 400; color: var(--texte-3); }
+.dtr-ligne { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.dtr-couleurs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dtr-coul { display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; gap: 0 10px; align-items: center; text-align: left; padding: 10px; border-radius: 12px; border: 1px solid var(--bord); background: var(--fond); color: var(--texte); font: inherit; cursor: pointer; }
+.dtr-coul:hover { border-color: var(--bord-clair); }
+.dtr-coul i { grid-row: span 2; width: 34px; height: 34px; border-radius: 9px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+.dtr-coul b { font-size: 13px; } .dtr-coul code { font-size: 11.5px; color: var(--texte-3); }
+.dtr-police { display: grid; gap: 6px; padding: 12px; border-radius: 12px; border: 1px solid var(--bord); background: var(--fond); }
+.dtr-police > span:first-child { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--texte-3); font-weight: 600; }
+.dtr-police select { font: 600 14px Poppins, sans-serif; color: var(--texte); background: var(--panneau); border: 1px solid var(--bord); border-radius: 8px; padding: 7px 8px; }
+.dtr-spec { font-size: 34px; line-height: 1.1; }
+.dtr-logo { height: 120px; border-radius: 12px; border: 1px solid var(--bord); background: var(--fond) center/contain no-repeat; display: grid; place-items: center; color: var(--texte-3); font-size: 13px; }
+.dtr-visuels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.dtr-visuels span, .dtr-visuels > button { position: relative; aspect-ratio: 4/5; border-radius: 9px; background: var(--fond) center/cover; border: 1px solid var(--bord); }
+.dtr-visuels span button { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%; border: 0; background: rgba(0,0,0,.72); color: #fff; font-size: 13px; line-height: 1; cursor: pointer; }
+.dtr-visuels > button { border-style: dashed; color: var(--texte-3); font-size: 22px; cursor: pointer; }
+.dtr-visuels > button:hover { color: var(--accent); border-color: var(--accent); }
+.dtr-fichier { font-size: 13px; color: var(--texte-2); }
+.dtr-choix { display: flex; gap: 6px; flex-wrap: wrap; }
+.dtr-choix button { font: 500 12.5px/1 Poppins, sans-serif; color: var(--texte-2); background: var(--fond); border: 1px solid var(--bord); border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.dtr-choix button:hover { border-color: var(--bord-clair); color: var(--texte); }
+.dtr-choix button.on { border-color: var(--accent); color: var(--texte); background: rgba(244,75,123,.1); }
+.dtr-apercu { display: flex; gap: 12px; justify-content: center; padding: 8px 0 26px; }
+.dtr-apercu .dap { width: 130px; }
+.dpl-tiroir .daf-ligne { grid-template-columns: 64px 1fr; }
+
+/* ---------- la création ---------- */
+.dcr h1 { font: 800 28px/1.2 var(--titres); margin: 0 0 6px; }
+.dcr-lead { color: var(--texte-2); margin: 0 0 22px; font-size: 14px; max-width: 64ch; }
+.dcr-fil { margin-bottom: 16px; }
+.dcr-departs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1100px) { .dcr-departs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .dcr-departs { grid-template-columns: minmax(0, 1fr); } }
+.dcr-porte { border: 1px solid var(--bord); border-radius: 16px; background: var(--panneau); padding: 18px 16px; display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: var(--texte); cursor: pointer; transition: border-color .2s, transform .2s; }
+.dcr-porte:hover { border-color: var(--bord-clair); transform: translateY(-2px); }
+.dcr-porte.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.dcr-ico { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; background: rgba(244,75,123,.12); color: var(--accent); font-size: 22px; }
+.dcr-porte b { font: 700 15px/1.25 var(--titres); } .dcr-porte span:not(.dcr-ico) { font-size: 12.5px; color: var(--texte-2); line-height: 1.45; }
+.dcr-porte small { font-size: 11.5px; color: var(--texte-3); }
+.dcr-saisie { margin-top: 16px; border: 1px solid var(--bord); border-radius: 16px; background: var(--panneau); padding: 18px; display: grid; gap: 10px; }
+.dcr-saisie .dtr-visuels { grid-template-columns: repeat(8, minmax(0, 72px)); }
+.dcr-pied { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+.dcr-pied .pg-pied-note { margin-right: auto; }
+.dcr-erreur { margin: 0; font-size: 13px; color: var(--attention); }
+.dcr-props { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1000px) { .dcr-props { grid-template-columns: minmax(0, 1fr); } }
+.dcr-prop { border: 1px solid var(--bord); border-radius: 18px; background: var(--panneau); overflow: hidden; display: grid; padding: 0; text-align: left; font: inherit; color: var(--texte); cursor: pointer; transition: border-color .2s; }
+.dcr-prop:hover { border-color: var(--bord-clair); }
+.dcr-prop.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.dcr-vitrine { display: flex; gap: 8px; justify-content: center; align-items: start; padding: 18px 12px; background: var(--f); }
+.dcr-vitrine .dap { width: 86px; } .dcr-vitrine .dap.slide { width: 106px; }
+.dcr-bas { padding: 14px 16px; display: grid; gap: 6px; }
+.dcr-bas small { font-size: 12.5px; color: var(--texte-2); line-height: 1.45; }
+.dcr .dcr-props + .dcr-pied, .dcr .dcr-erreur + .dcr-pied { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--bord); }
+.dcr-attente { display: flex; gap: 10px; margin-top: 10px; }
+.dcr-attente i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); animation: ins-pouls 1.2s ease-in-out infinite; }
+.dcr-attente i:nth-child(2) { animation-delay: .2s; } .dcr-attente i:nth-child(3) { animation-delay: .4s; }
+
+/* le Reel : « + Nouvelle DA » dans la liste des DA */
+/* six cartes par rangée (27 sept. 2026) : la zone de l'illustration fait 176 px, le groupe de bustes des avatars 196 px —
+   la zone s'élargissait vers la droite et l'illustration n'était plus centrée. Elle déborde maintenant à égalité des deux côtés. */
+/* supprimer une DA depuis la galerie : une corbeille qui paraît au survol de la carte */
+.dam-carte { position: relative; }
+.dam-carte:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dam-suppr { position: absolute; z-index: 5; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; cursor: pointer;
+  color: #fff; background: rgba(22,14,36,.78); border: 1px solid rgba(255,255,255,.14); backdrop-filter: blur(6px); opacity: 0; transform: scale(.9); transition: opacity .18s, transform .18s, background .18s, color .18s; }
+.dam-carte:hover .dam-suppr, .dam-carte:focus-within .dam-suppr { opacity: 1; transform: none; }
+.dam-suppr:hover, .dam-suppr:focus-visible { background: var(--alerte); border-color: var(--alerte); color: #fff; outline: none; }
+@media (hover: none) { .dam-suppr { opacity: 1; transform: none; } }
+
+/* ---------- Les slides vidéo (27 sept. 2026 ; js/parcours.js, pgBlocVideo et pgPellicule ; maquette LABO/slides-video) ---------- */
+.pg-sb-mini button:disabled { opacity: .4; cursor: default; }
+.pg-sb-carte .puce.video { color: #FF9EC0; border-color: rgba(244,75,123,.45); }
+.pg-cq-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.pg-cq-img.pg-cq-video { background: #000; }
+.pg-cq-duree { position: absolute; z-index: 2; left: 2.5cqw; bottom: 2.5cqw; font: 700 3.4cqw/1 var(--titres); color: #fff; background: rgba(0,0,0,.7); border-radius: 99px; padding: 1cqw 2cqw; }
+.pg-sb-rendus-video { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 8px; }
+.pg-sb-rendus-video button { position: relative; aspect-ratio: 9/16; border: 0; border-radius: 10px; overflow: hidden; background: #000; padding: 0; cursor: pointer; box-shadow: 0 0 0 1px var(--bord); }
+.pg-sb-rendus-video button:hover { box-shadow: 0 0 0 2px var(--accent); }
+.pg-sb-rendus-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pg-sb-rendus-video span { position: absolute; left: 5px; bottom: 5px; font: 700 10.5px/1 var(--titres); color: #fff; background: rgba(0,0,0,.72); border-radius: 99px; padding: 3px 6px; }
+.pg-sb-rendus-video small { position: absolute; left: 5px; right: 5px; top: 5px; font-size: 10px; line-height: 1.2; color: #fff; text-shadow: 0 1px 3px #000; text-align: left; }
+.pg-sb-pellicule { display: grid; gap: 8px; }
+.pg-sb-pel-apercu { width: 100%; max-height: 240px; border-radius: 10px; background: #000; object-fit: contain; }
+.pg-sb-film { position: relative; height: 54px; border-radius: 9px; overflow: hidden; background: #000; user-select: none; touch-action: none; }
+.pg-sb-film canvas { display: block; width: 100%; height: 100%; }
+.pg-sb-film > i { position: absolute; top: 0; bottom: 0; background: rgba(0,0,0,.64); pointer-events: none; }
+.pg-sb-film > i.g { left: 0; } .pg-sb-film > i.d { right: 0; }
+.pg-sb-film > b { position: absolute; top: 0; bottom: 0; border: 3px solid var(--accent); border-radius: 8px; cursor: grab; }
+.pg-sb-film > b span { position: absolute; top: -3px; bottom: -3px; width: 13px; background: var(--accent); cursor: ew-resize; }
+.pg-sb-film > b span::after { content: ""; position: absolute; left: 50%; top: 50%; width: 2px; height: 18px; margin: -9px 0 0 -1px; background: rgba(0,0,0,.5); border-radius: 2px; }
+.pg-sb-film > b .pg { left: -3px; border-radius: 7px 0 0 7px; } .pg-sb-film > b .pd { right: -3px; border-radius: 0 7px 7px 0; }
+.pg-sb-film > em { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; pointer-events: none; }
+.pg-sb-temps { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--texte-2); }
+.pg-sb-temps b { color: var(--texte); } .pg-sb-temps small { color: var(--texte-3); }
+.pg-sb-temps-maj { width: 100%; color: var(--texte-3); }
+/* le cadrage de la vidéo : la vidéo entière, et le rectangle du cadre à glisser (pgCadrage) */
+.pg-sb-cadrage-zone { display: grid; gap: 6px; }
+.pg-sb-cadrage { position: relative; margin: 0 auto; border-radius: 10px; overflow: hidden; background: #000; touch-action: none; }
+.pg-sb-cadrage .pg-sb-pel-apercu { display: block; width: auto; max-height: none; object-fit: fill; border-radius: 0; }
+.pg-sb-recadre { position: absolute; border: 2px solid var(--accent); border-radius: 6px; box-shadow: 0 0 0 999px rgba(0,0,0,.58); cursor: grab; }
+.pg-sb-recadre:active { cursor: grabbing; }
+.pg-sb-cadrage-aide { text-align: center; }
+/* la forme du cadre d'une vidéo posée (Libre / Forme de la vidéo) */
+.pg-sb-forme { align-items: center; }
+.pg-sb-forme-etq { font-size: 12.5px; color: var(--texte-2); margin-right: 4px; }
+/* le croquis d'une vidéo « Forme de la vidéo » : le cadre a ses proportions, centré dans la place des images */
+.pg-cq-images.pg-cq-forme { grid-template-rows: minmax(0, 1fr); align-items: center; justify-items: center; }
+.pg-cq-images.pg-cq-forme .pg-cq-video { width: 100%; height: auto; min-height: 0; }
+/* les vidéos à montrer, à l'étape « Qui et quoi » (pgEVideos) */
+
+/* ============ L'ACTIVATION (28 sept. 2026, app/js/licence.js) ============
+   Tant que la licence manque, un écran recouvre tout le studio. */
+
+/* LES ÉCRANS ANIMÉS du module Reel (29 sept. 2026) : fabriqués par le studio à l'étape des vidéos */
+
+/* Les références d'une scène, dans le découpage (29 sept. 2026) */
+
+/* Les produits à montrer d'un Reel (29 sept. 2026) : packshots du projet ou photos importées */
+
+/* La voix périmée (29 sept. 2026) : le texte a changé depuis la voix off — avis au script, à la voix et au découpage */
+
+/* LES GIF (30 sept. 2026) : la bibliothèque dans le bloc vidéo d'une slide, GIPHY, la carte « Toi.GIF » */
+.pg-sb-gifs { display: grid; gap: 8px; margin: 6px 0 10px; }
+.pg-sb-gif { position: relative; }
+.pg-sb-gif > button:first-child { width: 100%; }
+.pg-sb-gif-ed, .pg-sb-gif-x { position: absolute; top: 4px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(0,0,0,.72); color: #fff; font-size: 12px; line-height: 1; cursor: pointer; }
+.pg-sb-gif-ed { right: 30px; } .pg-sb-gif-x { right: 4px; }
+.pg-sb-gif-plus { display: grid; place-items: center; align-content: center; gap: 4px; border: 1px dashed var(--bord-clair); border-radius: 10px; background: transparent; color: var(--texte-2); cursor: pointer; min-height: 90px; }
+.pg-sb-gif-plus span { font-size: 22px; }
+.pg-sb-giphy { display: grid; gap: 8px; }
+.pg-giphy-mention { font-size: 11px; opacity: .7; }
+.pg-gif-carte { width: 220px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 22px rgba(0,0,0,.45); background: #000; }
+.pg-gif-carte b { display: block; height: 30px; line-height: 30px; text-align: center; background: #FFF7EC; color: #111; font: 700 12.5px/30px 'Open Sans', sans-serif; }
+.pg-gif-carte video { display: block; width: 100%; }
+
+/* Une DA sans la sous-DA de ce genre, à l'étape « Votre DA » (30 sept. 2026) : fermée, avec le bouton pour la créer */
+
+/* ============================================================
+   VOS DA — LES TROIS SOUS-DA (30 sept. 2026, maquette LABO/module-da-v2) : préfixe dsd-
+   ============================================================ */
+.dsd-mini { position: relative; border-radius: 10px; overflow: hidden; flex: none; background: var(--panneau-2); box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 16px 34px -18px rgba(0,0,0,.9); }
+.dsd-mini.slide { aspect-ratio: 4/5; } .dsd-mini.story, .dsd-mini.sous { aspect-ratio: 9/16; }
+.dsd-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dsd-mini .dap { width: 100% !important; border-radius: 0 !important; box-shadow: none; transform: none !important; }
+.dsd-mini.vide { background: repeating-linear-gradient(-45deg, rgba(255,255,255,.025) 0 10px, transparent 10px 20px); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.14); display: grid; place-items: center; }
+.dsd-mini.vide span { font-size: 11px; color: var(--texte-3); text-align: center; padding: 6px; line-height: 1.3; }
+.dsd-vitrine { background: #0e0e10; }
+.dsd-vitrine .dsd-mini { width: 96px; border-radius: 10px 10px 0 0; } .dsd-vitrine .dsd-mini.slide { width: 124px; }
+.dsd-vitrine .dsd-mini:nth-child(1) { transform: translateY(18px) rotate(-5deg); } .dsd-vitrine .dsd-mini:nth-child(3) { transform: translateY(18px) rotate(5deg); }
+.dsd-trois { display: flex; gap: 6px; flex-wrap: wrap; }
+.dsd-pill { display: inline-flex; align-items: center; gap: 5px; font: 600 11.5px/1 Poppins, sans-serif; padding: 6px 9px; border-radius: 999px; background: rgba(78,203,143,.1); color: #7fe0b0; border: 1px solid rgba(78,203,143,.3); }
+.dsd-pill.non { background: none; color: var(--texte-3); border: 1px dashed var(--bord-clair); }
+/* la DA : le haut, la façon de parler, les trois cartes */
+.dsd-haut { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.dsd-haut h1 { font: 800 36px/1 var(--titres); margin: 0 4px; text-transform: uppercase; letter-spacing: -.01em; }
+.dsd-haut .btn-mini:first-of-type { margin-left: auto; }
+.dsd-retour { color: var(--texte-2); }
+.dsd-parole { display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; align-items: start; background: var(--accent); color: #0B0B0D; border-radius: 20px; padding: 18px 22px; margin-bottom: 18px; cursor: pointer; }
+.dsd-parole .dpl-etq { color: rgba(0,0,0,.6); grid-column: 1 / -1; }
+.dsd-parole p { margin: 0; font: 700 16.5px/1.4 Poppins, sans-serif; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.dsd-parole aside { font-size: 12.5px; line-height: 1.5; max-width: 250px; color: rgba(0,0,0,.7); }
+.dsd-parole aside b { display: block; color: #0B0B0D; font-size: 13.5px; }
+.dsd-cartes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.dsd-carte { --f: #111; --t: #fff; --a: #F44B7B; --s: #333; --ft: Poppins; --fx: Poppins; display: grid; grid-template-rows: auto auto auto 1fr auto auto; gap: 14px; background: var(--f); color: var(--t); border-radius: 20px; padding: 18px; border: 1px solid color-mix(in srgb, var(--t) 14%, transparent); min-width: 0; transition: border-color .2s; }
+.dsd-carte:hover { border-color: var(--a); }
+.dsd-carte.eclaire { outline: 2px solid var(--accent); outline-offset: 4px; animation: dsd-pulse 1.2s ease-in-out 3; }
+@keyframes dsd-pulse { 50% { outline-color: transparent; } }
+.dsd-tete { display: flex; align-items: center; gap: 10px; }
+.dsd-tete h2 { margin: 0; font: 800 22px/1.1 var(--ft), sans-serif; }
+.dsd-ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--t) 8%, transparent); font-size: 17px; }
+.dsd-etat { margin-left: auto; font: 600 11px/1 Poppins, sans-serif; padding: 6px 9px; border-radius: 999px; background: rgba(78,203,143,.14); color: #7fe0b0; }
+.dsd-etat.non { background: color-mix(in srgb, var(--t) 8%, transparent); color: color-mix(in srgb, var(--t) 55%, transparent); }
+.dsd-vit { display: flex; gap: 10px; align-items: end; height: 196px; justify-content: center; }
+.dsd-vit .dsd-mini { height: 100%; } .dsd-vit .dsd-mini.slide { height: 88%; }
+.dsd-id { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: color-mix(in srgb, var(--t) 70%, transparent); flex-wrap: wrap; }
+.dsd-id .dam-pastilles { margin-left: 0; }
+.dsd-carte ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; font: 13px/1.4 Poppins, sans-serif; align-content: start; }
+.dsd-carte li { display: flex; gap: 8px; } .dsd-carte li::before { content: "·"; color: var(--a); font-weight: 800; }
+.dsd-sert { font-size: 11.5px; color: color-mix(in srgb, var(--t) 50%, transparent); border-top: 1px solid color-mix(in srgb, var(--t) 12%, transparent); padding-top: 10px; }
+.dsd-boutons { display: grid; gap: 8px; }
+.dsd-carte .pg-btn { justify-content: center; }
+.dsd-carte:not(.vide) .pg-btn:not(.pg-btn-go) { background: color-mix(in srgb, var(--t) 8%, transparent); color: var(--t); border-color: color-mix(in srgb, var(--t) 20%, transparent); }
+.dsd-carte.vide { --f: var(--panneau); --t: var(--texte); background: repeating-linear-gradient(-45deg, rgba(255,255,255,.015) 0 12px, transparent 12px 24px), var(--panneau); border: 1.5px dashed var(--bord-clair); grid-template-rows: auto 1fr auto; }
+.dsd-vide { display: grid; gap: 10px; align-content: center; text-align: center; padding: 14px 4px; }
+.dsd-vide p { margin: 0; color: var(--texte-2); font-size: 13.5px; line-height: 1.5; }
+.dsd-vide p b { color: var(--texte); }
+.dsd-vide small { color: var(--texte-3); font-size: 11.5px; margin-top: -4px; }
+.dsd-fantome { background: none !important; }
+/* la planche d'une sous-DA */
+.dsd-nom { text-transform: none; font-size: 36px; }
+.dsd-nom small { font: 600 13px Poppins, sans-serif; opacity: .6; margin-left: 8px; text-transform: none; }
+.dsd-apprendre { grid-column: span 6; grid-row: span 2; display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: stretch; cursor: default;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--a) 22%, var(--f)), color-mix(in srgb, var(--t) 5%, var(--f)) 70%); border-color: color-mix(in srgb, var(--a) 45%, transparent); }
+.dsd-apprendre:hover { border-color: color-mix(in srgb, var(--a) 45%, transparent); }
+.dsd-apprendre .dpl-crayon { display: none; }
+.dsd-apprendre h3 { margin: 6px 0 6px; font: 800 22px/1.15 var(--ft), sans-serif; }
+.dsd-apprendre p { margin: 0; font: 13.5px/1.5 Poppins, sans-serif; opacity: .85; max-width: 62ch; }
+.dsd-appris { margin-top: 12px; font: 12.5px Poppins, sans-serif; opacity: .8; }
+.dsd-depot { border: 1.5px dashed color-mix(in srgb, var(--t) 35%, transparent); border-radius: 14px; display: grid; place-items: center; align-content: center; gap: 6px; text-align: center; padding: 12px; cursor: pointer; transition: .2s;
+  background: color-mix(in srgb, var(--f) 50%, transparent); font-family: Poppins, sans-serif; }
+.dsd-depot:hover, .dsd-depot:focus-visible { border-color: var(--a); background: color-mix(in srgb, var(--a) 8%, var(--f)); outline: none; }
+.dsd-depot b { font: 700 15px Poppins, sans-serif; } .dsd-depot span { font-size: 12px; opacity: .65; } .dsd-depot .ico { font-size: 28px; opacity: 1; }
+.dsd-charte { grid-column: span 3; grid-row: span 2; display: grid; align-content: start; gap: 8px; }
+.dsd-charte p { margin: 0; font: 14px/1.45 var(--fx), sans-serif; }
+.dsd-petit { font-size: 12.5px !important; opacity: .7; }
+.dsd-exemples { grid-column: span 3; grid-row: span 2; display: grid; grid-template-rows: auto 1fr; gap: 10px; }
+.dsd-exemples > div { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; align-items: center; }
+.dsd-exemples img { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 8px; display: block; }
+.dsd-bientot { grid-column: span 6; grid-row: span 1; display: flex; align-items: center; gap: 14px; opacity: .55; border-style: dashed; cursor: default; font-family: Poppins, sans-serif; }
+.dsd-bientot:hover { border-color: color-mix(in srgb, var(--t) 10%, transparent); }
+.dsd-bientot > span { font-size: 22px; } .dsd-bientot b { font-size: 14px; } .dsd-bientot small { font-size: 12.5px; }
+/* créer une DA */
+.dsd-pas { display: flex; gap: 8px; margin-bottom: 14px; font-size: 12.5px; color: var(--texte-3); }
+.dsd-pas span { padding: 6px 11px; border-radius: 999px; border: 1px solid var(--bord); }
+.dsd-pas span.on { color: #0B0B0D; background: var(--accent); border-color: var(--accent); }
+.dsd-creer .pg-champ { width: 100%; box-sizing: border-box; }
+.dsd-puces { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 4px; }
+.dsd-puces button { font: 12.5px/1.35 Poppins, sans-serif; text-align: left; color: var(--texte-2); background: var(--panneau); border: 1px solid var(--bord); border-radius: 10px; padding: 8px 11px; cursor: pointer; max-width: 380px; }
+.dsd-puces button:hover { color: var(--texte); border-color: var(--bord-clair); }
+@media (max-width: 1100px) { .dsd-cartes { grid-template-columns: 1fr; } .dsd-apprendre { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   « APPRENDRE MON STYLE » (30 sept. 2026, app/js/apprendre.js) : préfixe ap-
+   ============================================================ */
+.ap-titre { font: 800 30px/1.1 var(--titres); margin: 0 6px; }
+.ap-cadre { background: var(--panneau); border: 1px solid var(--bord); border-radius: 20px; padding: 22px; }
+.ap-depot { border: 2px dashed var(--bord-clair); border-radius: 18px; min-height: 260px; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; padding: 26px; transition: .2s; background: rgba(255,255,255,.015); }
+.ap-depot.survol { border-color: var(--accent); background: rgba(244,75,123,.06); }
+.ap-depot .ico { font-size: 40px; }
+.ap-depot h2 { margin: 0; font: 800 22px/1.2 var(--titres); }
+.ap-depot p { margin: 0; color: var(--texte-2); font-size: 14px; max-width: 64ch; line-height: 1.55; }
+.ap-depot p b { color: var(--texte); }
+.ap-ligne { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.ap-ligne label { cursor: pointer; }
+.ap-exemple { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; font-size: 12.5px; color: var(--texte-2); text-align: left; width: 100%; }
+.ap-exemple div { border: 1px solid var(--bord); border-radius: 12px; padding: 10px 12px; background: var(--fond); line-height: 1.45; }
+.ap-exemple b { display: block; color: var(--texte); font-size: 13px; margin-bottom: 3px; }
+.ap-occupe { color: var(--accent); font-weight: 600; }
+.ap-grand { font-size: 21px !important; }
+.ap-resume { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 14px; }
+.ap-resume span { font: 600 12.5px/1 Poppins, sans-serif; padding: 8px 12px; border-radius: 999px; background: var(--panneau-2); border: 1px solid var(--bord); }
+.ap-resume span b { color: var(--accent); }
+.ap-sec { margin-top: 22px; }
+.ap-sec-t { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.ap-sec-t h3 { margin: 0; font: 700 17px/1.2 var(--titres); }
+.ap-sec-t small { color: var(--texte-3); font-size: 12.5px; }
+.ap-car { display: grid; grid-template-columns: 210px 1fr; gap: 14px; align-items: center; padding: 10px; border: 1px solid var(--bord); border-radius: 14px; margin-bottom: 8px; background: var(--fond); }
+.ap-car > div:first-child { position: relative; padding-right: 26px; }
+.ap-car b { display: block; font-size: 13.5px; } .ap-car small { color: var(--texte-3); font-size: 12px; }
+.ap-x { position: absolute; right: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--panneau-2); color: var(--texte-2); cursor: pointer; }
+.ap-bande { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.ap-vign { position: relative; flex: none; width: 74px; border-radius: 7px; overflow: hidden; background: var(--panneau-2); }
+.ap-vign img, .ap-vign video { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; }
+.ap-vign i { position: absolute; left: 4px; top: 4px; font: 700 9.5px/1 Poppins, sans-serif; font-style: normal; background: rgba(0,0,0,.75); color: #fff; padding: 3px 5px; border-radius: 5px; }
+.ap-tas { display: flex; gap: 8px; flex-wrap: wrap; }
+.ap-item { width: 92px; display: grid; gap: 4px; font-size: 11px; color: var(--texte-2); text-align: center; }
+.ap-item > span { height: 80px; border-radius: 10px; background: center/contain no-repeat, var(--fond); border: 1px solid var(--bord); overflow: hidden; }
+.ap-item > span video { width: 100%; height: 100%; object-fit: cover; }
+.ap-item.plein > span { background-size: cover; }
+.ap-item em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-item select { font: 11px Poppins, sans-serif; background: var(--panneau-2); color: var(--texte-2); border: 1px solid var(--bord); border-radius: 6px; padding: 2px; width: 100%; }
+.ap-ignores { font-size: 12.5px; color: var(--texte-3); display: grid; gap: 5px; }
+.ap-ignores div { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; } .ap-ignores code { color: var(--texte-2); }
+.ap-pied { position: sticky; bottom: 0; z-index: 30; margin-top: 22px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 18px; border-radius: 16px; background: rgba(30,21,48,.97); border: 1px solid var(--bord-clair); box-shadow: 0 -20px 40px -20px rgba(0,0,0,.9); }
+.ap-pied p { margin: 0; font-size: 13px; color: var(--texte-2); line-height: 1.45; flex: 1; min-width: 240px; }
+.ap-pied p b { color: var(--texte); }
+.ap-attente { text-align: center; }
+.ap-attente h2 { font: 800 24px/1.2 var(--titres); margin: 0 0 6px; }
+.ap-attente p { margin: 0 0 8px; color: var(--texte-2); font-size: 14px; }
+.ap-jauge { height: 10px; border-radius: 999px; background: var(--panneau-2); overflow: hidden; max-width: 520px; margin: 18px auto 8px; }
+.ap-jauge i { display: block; height: 100%; background: var(--pms-grad); transition: width .3s; }
+.ap-etapes { display: grid; gap: 8px; max-width: 700px; margin: 14px auto 0; }
+.ap-etape { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--bord); background: var(--fond); color: var(--texte-3); font-size: 14px; }
+.ap-etape > i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--bord-clair); display: grid; place-items: center; font-style: normal; font-size: 12px; }
+.ap-etape div small { display: block; color: var(--texte-3); font-size: 12px; }
+.ap-etape.en-cours { color: var(--texte); border-color: rgba(244,75,123,.5); }
+.ap-etape.en-cours > i { border-color: var(--accent); border-top-color: transparent; animation: ap-tourne .8s linear infinite; }
+.ap-etape.fait { color: var(--texte-2); } .ap-etape.fait > i { background: var(--ok); border-color: var(--ok); color: #0B0B0D; }
+@keyframes ap-tourne { to { transform: rotate(360deg); } }
+/* les résultats */
+.ap-tete h2 { font: 800 26px/1.2 var(--titres); margin: 0 0 6px; }
+.ap-tete p { margin: 0 0 16px; color: var(--texte-2); font-size: 14px; max-width: 80ch; }
+.ap-rub { display: grid; grid-template-columns: 240px 1fr auto; gap: 20px; align-items: start; padding: 18px; border: 1px solid var(--bord); border-radius: 16px; background: var(--panneau); margin-bottom: 12px; }
+.ap-rub.ok { border-color: rgba(78,203,143,.5); }
+.ap-rub h3 { margin: 0 0 4px; font: 700 17px/1.2 var(--titres); }
+.ap-quoi { font-size: 12.5px; color: var(--texte-3); line-height: 1.5; }
+.ap-vis { margin-top: 10px; } .ap-orig { width: 100%; border-radius: 10px; display: block; }
+.ap-corps { min-width: 0; font-size: 13.5px; color: var(--texte-2); line-height: 1.55; }
+.ap-corps p { margin: 0 0 8px; } .ap-corps b { color: var(--texte); }
+.ap-petit { font-size: 12.5px !important; color: var(--texte-3) !important; margin: 4px 0 8px !important; }
+.ap-act { display: grid; gap: 6px; justify-items: stretch; min-width: 150px; }
+.ap-act .pg-btn { justify-content: center; }
+.ap-act .ap-ok { background: rgba(78,203,143,.14); border-color: rgba(78,203,143,.5); color: #7fe0b0; }
+.ap-corrige { grid-column: 2 / 4; display: none; gap: 8px; }
+.ap-corrige.on { display: grid; }
+.ap-corrige textarea { width: 100%; box-sizing: border-box; }
+.ap-sw { display: grid; grid-template-columns: 2fr 1.3fr 1fr 1fr; gap: 8px; height: 110px; margin-bottom: 8px; }
+.ap-coul { border: 0; border-radius: 12px; cursor: pointer; display: flex; align-items: end; padding: 10px; box-shadow: inset 0 0 0 1px rgba(128,128,128,.3); }
+.ap-coul span { font: 600 12px/1.3 Poppins, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); text-align: left; }
+.ap-coul code { display: block; font-size: 10.5px; opacity: .85; }
+.ap-etq { font: 600 10.5px/1 ui-monospace, Consolas, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--texte-3); margin: 12px 0 4px; }
+.ap-polices { display: grid; gap: 8px; }
+.ap-pol { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--bord); border-radius: 12px; cursor: pointer; background: #111113; }
+.ap-pol.on { border-color: var(--accent); }
+.ap-pol input { accent-color: var(--accent); }
+.ap-pol .ech { color: #fff; line-height: 1.1; }
+.ap-pol .ech small { display: block; font: 11.5px Poppins, sans-serif; color: var(--texte-3); margin-top: 3px; font-style: normal; }
+.ap-pol .src { font-size: 11px; color: var(--texte-3); text-align: right; } .ap-pol .src.local { color: #7fe0b0; }
+.ap-charte { max-height: 280px; overflow: hidden; position: relative; background: var(--fond); border: 1px solid var(--bord); border-radius: 12px; padding: 4px 16px; margin-bottom: 8px; }
+.ap-charte::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60px; background: linear-gradient(transparent, var(--fond)); }
+.ap-charte.ouverte { max-height: none; } .ap-charte.ouverte::after { display: none; }
+.ap-charte h3, .ap-charte h4 { font: 700 14.5px/1.3 var(--titres); color: var(--texte); margin: 14px 0 6px; }
+.ap-charte p, .ap-charte li { font-size: 13px; line-height: 1.55; }
+.ap-charte code { font-size: 11.5px; background: var(--panneau-2); padding: 1px 4px; border-radius: 4px; color: var(--texte); }
+.ap-exemples { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ap-exemples img { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 8px; display: block; }
+.ap-els { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 8px; }
+.ap-el { display: grid; grid-template-columns: 64px 1fr 22px; gap: 8px; align-items: start; padding: 8px; border: 1px solid var(--bord); border-radius: 12px; background: var(--fond); }
+.ap-el.off { opacity: .45; }
+.ap-el > span { width: 64px; height: 64px; border-radius: 9px; background: #1a1a1d center/contain no-repeat; }
+.ap-el > div { display: grid; gap: 5px; } .ap-el .pg-champ { padding: 5px 8px; font-size: 12px; }
+.ap-el input[type=checkbox] { accent-color: var(--accent); margin-top: 6px; }
+.ap-manq { display: grid; gap: 8px; }
+.ap-manq > div { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,184,77,.4); background: rgba(255,184,77,.05); }
+.ap-manq span { flex: 1; min-width: 200px; font-size: 12.5px; }
+.ap-coche { display: flex; gap: 10px; align-items: start; cursor: pointer; } .ap-coche input { accent-color: var(--accent); margin-top: 4px; }
+.ap-coche small { color: var(--texte-3); }
+.ap-deux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 560px; }
+.ap-deux figure { margin: 0; } .ap-deux img { width: 100%; border-radius: 10px; display: block; }
+.ap-deux figcaption { font-size: 11.5px; color: var(--texte-3); margin-top: 5px; }
+.ap-corr { margin: 0; padding-left: 18px; font-size: 13px; }
+.ap-compte { font-size: 13px; color: var(--texte-2); } .ap-compte b { color: var(--ok); }
+@media (max-width: 1000px) { .ap-rub { grid-template-columns: 1fr; } .ap-corrige { grid-column: 1; } .ap-car { grid-template-columns: 1fr; } .ap-exemple { grid-template-columns: 1fr 1fr; } }
+.ap-coul.claire span { color: #111; text-shadow: none; }
+.ap-deja { grid-column: 1 / -1; font-size: 11px; color: var(--attention); }
+/* les fonds d'une sous-DA au format de leur support (9:16 Reel et story, 4:5 carrousel) */
+.dpl-fonds.dsd-916, .dpl-fonds.dsd-45 { display: flex; justify-content: center; align-items: stretch; gap: 12px; }
+.dpl-fonds.dsd-916 > div { aspect-ratio: 9/16; height: 100%; width: auto; flex: none; }
+.dpl-fonds.dsd-45 > div { aspect-ratio: 4/5; height: 100%; width: auto; flex: none; }
+.ap-pol-plus { margin-top: 6px; }
+/* les GIF d'une sous-DA (1er oct. 2026) */
+.dsd-gifs { grid-column: span 2; grid-row: span 2; display: grid; grid-template-rows: auto 1fr auto; gap: 8px; }
+.dsd-gifs > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; align-content: start; }
+.dsd-gifs > div span { border-radius: 8px; background: center/cover; aspect-ratio: 4/3; }
+.dsd-gifs p { margin: 0; }
+.dtr-gifs { display: grid; gap: 8px; margin-top: 10px; }
+.dtr-gif { display: grid; grid-template-columns: 20px 56px 1fr; grid-template-rows: auto auto; gap: 2px 10px; align-items: center; padding: 8px; border: 1px solid var(--bord); border-radius: 12px; cursor: pointer; }
+.dtr-gif.on { border-color: var(--accent); }
+.dtr-gif input { grid-row: span 2; accent-color: var(--accent); }
+.dtr-gif span { grid-row: span 2; width: 56px; height: 56px; border-radius: 8px; background: center/cover; }
+.dtr-gif b { font-size: 13px; } .dtr-gif small { font-size: 11.5px; color: var(--texte-3); }
+
+/* ============ RETAKE (2 oct. 2026) : la 5e porte de l'accueil et ses étapes (js/retake.js) ============ */
+.portes:not(.po-outils) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1180px) and (min-width: 821px) { .portes:not(.po-outils) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 820px) { .portes:not(.po-outils) { grid-template-columns: minmax(0, 1fr); } }

@@ -1,0 +1,7 @@
+# Les fichiers du Mac gardent des fins de ligne Unix (sinon ils ne se lancent pas)
+*.command text eol=lf
+Storymatic.app/Contents/MacOS/lancer text eol=lf
+Storymatic.app/Contents/Info.plist text eol=lf
+*.icns binary
+*.ico binary
+*.png binary

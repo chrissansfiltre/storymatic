@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storymatic</title>
+<link rel="icon" type="image/png" sizes="16x16" href="storymatic-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="storymatic-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="storymatic-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="storymatic-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* STORYMATIC — l'accueil (le calendrier de l'année) et la page d'une semaine (piste B « jour par jour » (7 oct. 2026) : la semaine à gauche, un jour en grand à droite, chaque story avec son explication). Éditeur : /editeur. */
+:root { --fond: #140D20; --carte: #1D1430; --carte-2: #251A3B; --bord: #2F2346; --bord-2: #3D2F58; --texte: #F5F2F9; --texte-2: #B4A9C7; --texte-3: #7F7397;
+  --o: #F44B7B; --o2: #FF9EC0; --chaud: #FDAB3D; --violet: #D23FE0; --grad: linear-gradient(90deg, #FDAB3D 0%, #F44B7B 52%, #D23FE0 100%); --vert: #4ADE80; --rouge: #FF7A7A; --titre: "Sora", system-ui, sans-serif; --corps: "Inter", system-ui, sans-serif; color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(1100px 620px at 92% -12%, rgba(210,63,224,.19), transparent 62%), radial-gradient(900px 520px at -8% -10%, rgba(253,171,61,.08), transparent 60%), radial-gradient(1200px 700px at 40% 118%, rgba(244,75,123,.10), transparent 62%), linear-gradient(165deg, #1A1029 0%, #120B1D 50%, #170B22 100%); background-attachment: fixed; color: var(--texte); font: 400 14px/1.5 var(--corps); -webkit-font-smoothing: antialiased; }
+button, input, textarea, select { font: inherit; color: inherit; }
+textarea, input, select { background: var(--fond); border: 1px solid var(--bord-2); border-radius: 12px; }
+textarea { width: 100%; padding: 11px 13px; resize: vertical; line-height: 1.5; font-size: 13.5px; }
+textarea:focus, input:focus, select:focus { outline: 2px solid rgba(244,75,123,.6); outline-offset: 1px; }
+.btn { border: 1px solid var(--bord-2); background: var(--carte-2); color: var(--texte); border-radius: 12px; padding: 10px 14px; font-weight: 700; cursor: pointer; font-size: 13.5px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn:hover { border-color: var(--texte-3); }
+.btn.fort { background: var(--grad); border-color: transparent; color: #0A0A0B; font-weight: 800; box-shadow: 0 12px 30px -14px rgba(244,75,123,.9); }
+.btn.petit { padding: 7px 11px; font-size: 12.5px; border-radius: 10px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.logo { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: center; font: 800 20px/1 var(--titre); letter-spacing: -.04em; cursor: pointer; }
+.logo img { grid-row: span 2; width: 38px; height: 38px; object-fit: contain; }
+.logo span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .1em; margin-right: -.1em; }
+.logo small { grid-column: 2; display: block; font: 600 9.5px/1 var(--corps); letter-spacing: .26em; text-transform: uppercase; color: var(--texte-3); margin-top: 6px; }
+.role { display: inline-block; font: 700 12px/1 var(--corps); color: var(--o2); background: rgba(244,75,123,.12); border-radius: 999px; padding: 6px 11px; }
+.tel { position: relative; width: 100%; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #000; border: 1px solid var(--bord-2); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); }
+.tel iframe { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; border: 0; transform-origin: 0 0; pointer-events: none; }
+a.tel { display: block; transition: transform .15s, border-color .15s; } a.tel:hover { transform: translateY(-3px); border-color: var(--texte-3); }
+
+/* ===== LE CALENDRIER ===== */
+.page { max-width: 1240px; margin: 0 auto; padding: 22px 22px 80px; }
+.page header { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+.studio { margin-left: auto; color: var(--texte-2); font-size: 13px; text-decoration: none; border: 1px solid var(--bord-2); padding: 8px 14px; border-radius: 999px; background: none; cursor: pointer; font-weight: 500; }
+.studio:hover { color: var(--texte); }
+h1 { font: 800 clamp(28px, 3.6vw, 44px)/1.05 var(--titre); letter-spacing: -.045em; margin: 0; }
+h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .1em; margin-right: -.1em; }
+.sous { color: var(--texte-2); margin: 6px 0 0; }
+.cal-tete { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.annee { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.annee b { font: 800 22px/1 var(--titre); letter-spacing: -.03em; min-width: 70px; text-align: center; }
+.annee button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--bord-2); background: var(--carte); cursor: pointer; font-size: 16px; }
+.prochaine { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: linear-gradient(120deg, rgba(253,171,61,.13), rgba(244,75,123,.11) 50%, rgba(210,63,224,.09)); border: 1px solid rgba(244,75,123,.42); border-radius: 18px; padding: 16px 18px; margin-bottom: 18px; }
+.prochaine p { margin: 0; color: var(--texte-2); font-size: 13.5px; }
+.prochaine strong { display: block; font: 800 18px/1.2 var(--titre); letter-spacing: -.02em; color: var(--texte); margin-bottom: 2px; }
+.prochaine .btn { margin-left: auto; }
+.legende { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--texte-2); margin-bottom: 14px; }
+.legende span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--bord-2); }
+.legende .l-faite::before { background: var(--vert); }
+.legende .l-commencee::before { background: var(--chaud); }
+.legende .l-courante::before { background: transparent; border: 2px solid var(--texte); }
+.mois-grille { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.mois { background: var(--carte); border: 1px solid var(--bord); border-radius: 16px; padding: 12px; }
+.mois h3 { font: 700 14px/1 var(--titre); letter-spacing: -.01em; margin: 2px 4px 10px; text-transform: capitalize; }
+.sem { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1px solid transparent; background: var(--carte-2); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; cursor: pointer; font-size: 13px; }
+.sem:hover { border-color: var(--texte-3); }
+.sem .num { font: 700 11px/1 var(--corps); color: var(--texte-3); }
+.sem .dates { color: var(--texte); font-weight: 600; }
+.sem .st { font: 700 11px/1 var(--corps); color: var(--texte-3); white-space: nowrap; }
+.sem.passee { opacity: .45; }
+.sem.faite { background: rgba(74,222,128,.13); border-color: rgba(74,222,128,.45); opacity: 1; }
+.sem.faite .st { color: var(--vert); }
+.sem.commencee { background: rgba(253,171,61,.10); border-color: rgba(253,171,61,.42); opacity: 1; }
+.sem.commencee .st { color: var(--chaud); }
+.sem.courante { box-shadow: inset 0 0 0 2px var(--texte); }
+.sem.cible { box-shadow: 0 0 0 2px var(--o), 0 10px 28px -12px rgba(244,75,123,.9); }
+
+/* ===== UNE SEMAINE : la barre de gauche, un jour à droite ===== */
+.app { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+nav { position: sticky; top: 0; height: 100vh; overflow-y: auto; border-right: 1px solid var(--bord); background: linear-gradient(180deg, rgba(26,17,42,.92), rgba(18,11,29,.95)); backdrop-filter: blur(10px); padding: 20px 16px; display: flex; flex-direction: column; gap: 5px; }
+nav .logo { margin: 4px 6px 14px; }
+.retour { color: var(--texte-2); font-size: 12.5px; font-weight: 600; background: none; border: 0; text-align: left; padding: 0 6px; cursor: pointer; margin-bottom: 8px; }
+.retour:hover { color: var(--texte); }
+.sem-t { padding: 0 6px; margin-bottom: 4px; }
+.sem-t small { font: 700 11px/1 var(--corps); letter-spacing: .2em; color: var(--o2); text-transform: uppercase; }
+.sem-t b { display: block; font: 800 22px/1.1 var(--titre); letter-spacing: -.035em; margin-top: 6px; }
+.barre { height: 6px; border-radius: 999px; background: var(--carte-2); margin: 12px 6px 4px; overflow: hidden; } .barre i { display: block; height: 100%; background: var(--vert); border-radius: 999px; transition: width .4s; }
+.barre-t { font-size: 11.5px; color: var(--texte-3); padding: 0 6px; margin-bottom: 12px; font-weight: 600; }
+.item { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 14px; border: 1px solid transparent; background: none; text-align: left; cursor: pointer; width: 100%; }
+.item:hover { background: var(--carte); }
+.item.on { background: var(--carte-2); border-color: var(--bord-2); }
+.item.repos { opacity: .55; }
+.item .d { font: 800 18px/1 var(--titre); letter-spacing: -.03em; text-align: center; }
+.item .d small { display: block; font: 700 9.5px/1 var(--corps); letter-spacing: .14em; text-transform: uppercase; color: var(--texte-3); margin-bottom: 4px; }
+.item .r { font-weight: 700; font-size: 13px; line-height: 1.25; } .item .r span { display: block; font-weight: 500; font-size: 11.5px; color: var(--texte-3); margin-top: 2px; }
+.pt { width: 9px; height: 9px; border-radius: 50%; background: var(--bord-2); }
+.pt.ok { background: var(--vert); box-shadow: 0 0 10px rgba(74,222,128,.6); }
+.pt.encours { background: var(--o); box-shadow: 0 0 10px rgba(244,75,123,.7); animation: bat 1.2s ease-in-out infinite; }
+.pt.erreur { background: var(--rouge); }
+@keyframes bat { 50% { opacity: .35; } }
+.item.prep .d { font-size: 15px; color: var(--o2); }
+.sep { height: 1px; background: var(--bord); margin: 8px 6px; }
+.nav-bas { margin-top: auto; display: grid; gap: 8px; padding-top: 14px; }
+.nav-bas .ligne { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.nav-bas .studio { margin: 4px 0 0; text-align: center; }
+main { padding: 26px 36px 80px; min-width: 0; }
+/* le contenu est centré sur l'ÉCRAN (7 oct. 2026 : « trop collé à gauche ») : son milieu tombe au milieu de la fenêtre,
+   la barre de 300 px comprise ; quand la place manque, il se colle à la barre sans jamais passer dessous */
+.cadre { max-width: 1248px; margin-left: max(0px, calc((100vw - 1248px) / 2 - 336px)); margin-right: auto; }   /* 1248 = 1920 − 2 × 336 : centré pile dès 1920 px */
+/* le bandeau de la tâche en cours */
+.bandeau { position: sticky; top: 10px; z-index: 5; display: none; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; background: rgba(30,19,47,.95); backdrop-filter: blur(6px); border: 1px solid rgba(244,75,123,.45); margin-bottom: 18px; font-weight: 600; }
+.bandeau.vu { display: flex; }
+.bandeau.fini { background: rgba(16,34,30,.95); border-color: rgba(74,222,128,.4); }
+.bandeau.erreur { background: rgba(30,12,12,.92); border-color: rgba(255,122,122,.45); }
+.bandeau .ferme { margin-left: auto; background: none; border: 0; color: var(--texte-3); cursor: pointer; font-size: 16px; }
+.rond { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid rgba(244,75,123,.3); border-top-color: var(--o); animation: tourne 1s linear infinite; flex: none; }
+.bandeau.fini .rond, .bandeau.erreur .rond { display: none; }
+@keyframes tourne { to { transform: rotate(360deg); } }
+/* un jour */
+.jt { display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+.outils { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.puces { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 16px 0 26px; }
+.puces > span, .puces > label { background: var(--carte); border: 1px solid var(--bord); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; color: var(--texte-2); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.puces select, .puces input { border-radius: 8px; padding: 2px 6px; font-size: 12.5px; font-weight: 700; color: var(--texte); }
+.puces .ok { color: var(--vert); border-color: rgba(74,222,128,.35); }
+.puces .encours { color: var(--o2); border-color: rgba(244,75,123,.45); }
+.puces .erreur { color: var(--rouge); border-color: rgba(255,122,122,.45); }
+.rang { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.rang.r5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.rang.r6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.carte-s { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.n-s { font: 700 11px/1 var(--corps); letter-spacing: .16em; text-transform: uppercase; color: var(--texte-3); margin-top: 3px; }
+.carte-s b { font: 700 14.5px/1.3 var(--titre); letter-spacing: -.01em; }
+.carte-s p { margin: 0; color: var(--texte-2); font-size: 12.5px; }
+.stk { align-self: flex-start; font-size: 11.5px; font-weight: 700; color: var(--o2); background: rgba(244,75,123,.1); border: 1px solid rgba(244,75,123,.35); border-radius: 8px; padding: 4px 8px; }
+.media { font-size: 11px; color: var(--texte-3); }
+.vide-j { background: var(--carte); border: 1.5px dashed var(--bord-2); border-radius: 20px; padding: 34px; text-align: center; color: var(--texte-2); }
+.vide-j b { display: block; font: 700 17px/1.3 var(--titre); color: var(--texte); margin-bottom: 6px; }
+.erreur-txt { color: var(--rouge); font-size: 13px; margin: -12px 0 18px; }
+.consigne { margin-top: 30px; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; background: var(--carte); border: 1px solid var(--bord); border-radius: 18px; padding: 16px; }
+.consigne label { grid-column: 1 / -1; font: 700 14px/1 var(--titre); }
+.consigne label span { font: 500 12.5px/1.4 var(--corps); color: var(--texte-3); margin-left: 6px; }
+details.brief { margin-top: 14px; background: var(--carte); border: 1px solid var(--bord); border-radius: 18px; padding: 14px 16px; }
+details.brief summary { cursor: pointer; font: 700 14px/1 var(--titre); list-style: none; }
+details.brief summary::before { content: "▸ "; color: var(--o2); }
+details[open].brief summary::before { content: "▾ "; }
+details.brief p { color: var(--texte-3); font-size: 12.5px; margin: 10px 0; }
+/* la préparation de la semaine */
+.prep-grille { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+.bloc { background: var(--carte); border: 1px solid var(--bord); border-radius: 20px; padding: 20px; }
+.bloc h2 { font: 700 17px/1.2 var(--titre); letter-spacing: -.02em; margin: 0 0 4px; }
+.bloc .aide, .aide { color: var(--texte-3); font-size: 12.5px; margin: 0 0 12px; }
+#actu { min-height: 170px; }
+.depot { border: 1.5px dashed var(--bord-2); border-radius: 14px; padding: 22px 14px; text-align: center; color: var(--texte-2); cursor: pointer; font-size: 13px; }
+.depot.survol { border-color: var(--o); background: rgba(244,75,123,.08); }
+.vignettes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.vig { width: 132px; background: var(--fond); border: 1px solid var(--bord); border-radius: 12px; overflow: hidden; position: relative; }
+.vig img { width: 100%; height: 132px; object-fit: cover; display: block; }
+.vig .cle { position: absolute; left: 6px; top: 6px; background: rgba(16,10,27,.85); border-radius: 6px; padding: 2px 6px; font: 800 11px/1.3 var(--corps); color: var(--o2); }
+.vig .x { position: absolute; right: 6px; top: 6px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(16,10,27,.85); cursor: pointer; color: var(--texte-2); }
+.vig textarea { border: 0; border-top: 1px solid var(--bord); border-radius: 0; font-size: 12px; padding: 7px 8px; min-height: 54px; background: transparent; }
+.tuiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+.tuile { background: var(--carte); border: 1px solid var(--bord); border-radius: 20px; padding: 16px; cursor: pointer; text-align: left; }
+.tuile:hover, .tuile.on { border-color: var(--o); }
+.mosa { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; border-radius: 12px; overflow: hidden; margin-bottom: 12px; min-height: 118px; background: var(--carte-2); }
+.mosa img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.mosa.m2 { grid-template-columns: repeat(2, 1fr); } .mosa.m2 img { aspect-ratio: 16 / 10; }
+.mosa.m1 { grid-template-columns: 1fr; place-items: center; font-size: 34px; }
+.tuile b { font: 700 15px/1.2 var(--titre); } .tuile span { display: block; color: var(--texte-3); font-size: 12px; margin-top: 3px; }
+.panneau { margin-top: 16px; }
+.panneau .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+@media (max-width: 1280px) { .rang.r5, .rang.r6 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .rang, .rang.r5, .rang.r6 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .prep-grille, .tuiles { grid-template-columns: 1fr; } .mois-grille { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 860px) { .app { grid-template-columns: 1fr; } nav { position: static; height: auto; } main { padding: 20px 16px 60px; } .rang, .rang.r5, .rang.r6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mois-grille { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .mois-grille { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- L'ACCUEIL : le calendrier de l'année, une ligne par semaine (verte = faite) -->
+<div class="page" id="vue-calendrier" hidden>
+  <header>
+    <div class="logo" data-calendrier title="Le calendrier"><img src="logo.png" alt=""><b style="font-weight:inherit">Story<span>matic</span></b><small id="compte"></small></div>
+    <button class="studio" data-profils title="Changer de compte, ou en ajouter un">Profil ▾</button>
+    <button class="studio" style="margin-left:0" data-profil title="Qui tu es, ce que tu vends, ta semaine type, ton rythme">Mon profil</button>
+    <a class="studio" style="margin-left:0" href="/editeur?da=story" title="Les couleurs, les polices, la charte, les patchs et les GIF de tes stories">Ma DA Story</a>
+  </header>
+  <div class="cal-tete">
+    <div><h1>Mon année de <em>stories</em></h1><p class="sous">Une ligne par semaine, du lundi au dimanche. Clique sur une semaine pour préparer ses stories.</p></div>
+    <div class="annee"><button id="annee-avant" aria-label="Année précédente">‹</button><b id="annee"></b><button id="annee-apres" aria-label="Année suivante">›</button></div>
+  </div>
+  <div class="prochaine" id="prochaine"></div>
+  <div class="legende"><span class="l-faite">Faite</span><span class="l-commencee">Commencée</span><span>À faire</span><span class="l-courante">Cette semaine</span></div>
+  <div class="mois-grille" id="mois"></div>
+</div>
+
+<!-- UNE SEMAINE -->
+<div class="app" id="vue-semaine" hidden>
+  <nav id="nav"></nav>
+  <main><div class="cadre">
+    <div class="bandeau" id="bandeau"><span class="rond"></span><span id="bandeau-txt"></span><button class="ferme" id="bandeau-x" title="Masquer">✕</button></div>
+    <div id="contenu"></div>
+  </div></main>
+</div>
+<input type="file" id="fichier-matiere" accept="image/*" multiple hidden>
+<input type="file" id="fichier-banque" accept="image/*" multiple hidden>
+
+<script src="profil-ui.js"></script>
+<script src="installation-ui.js"></script>
+<script>
+// STORYMATIC — l'API vit dans semaine.js et profil.js (côté serveur). Le projet vient du profil (INFO.projet).
+const $ = s => document.querySelector(s);
+const esc = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+// le texte des stories garde ses marques (*mot* en italique, **mot** en gras) : on les rend lisibles
+const propre = t => esc(String(t || "").replace(/&nbsp;/g, " ")).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(.+?)\*/g, "<i>$1</i>");
+let PROFIL = null;
+let S = null, INFO = null, BANQUE = [], CAPTURES = [], VIDEOS = [], SONDE = null, SAISIE = false, VUE = null, TUILE = null, BANDEAU_VU = null;
+async function api(url, corps, brut) {
+  const o = corps === undefined ? {} : brut ? { method: "POST", body: corps } : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) };
+  const r = await fetch(url, o), j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.erreur || ("Erreur " + r.status));
+  return j;
+}
+const enCours = () => !!(S && S.tache && !S.tache.fini);
+const libelleSemaine = id => { const [a, m, j] = id.split("-").map(Number); return new Date(a, m - 1, j).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }); };
+const isoDe = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const dateDe = id => { const [a, m, j] = id.split("-").map(Number); return new Date(a, m - 1, j); };
+const plusJours = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+function numeroSemaine(lundi) {   // le numéro ISO (S1…S53) : celui du jeudi
+  const jeudi = plusJours(lundi, 3), un = new Date(jeudi.getFullYear(), 0, 4);
+  return 1 + Math.round((jeudi - plusJours(un, -((un.getDay() + 6) % 7))) / 6048e5);
+}
+// chaque téléphone met sa story (1080 × 1920) à sa largeur
+const RO = new ResizeObserver(l => l.forEach(e => { const f = e.target.querySelector("iframe"); if (f) f.style.transform = "scale(" + (e.target.clientWidth / 1080) + ")"; }));
+const ajusterTels = () => document.querySelectorAll(".tel").forEach(t => RO.observe(t));
+
+/* ---------- l'aiguillage : « / » = le calendrier, « /?semaine=AAAA-MM-JJ » = une semaine (l'éditeur y ramène) ---------- */
+let BANQUE_CHARGEE = false, ANNEE = null;
+async function demarrer() {
+  PROFIL = await api("/api/profil");
+  INFO = await api("/api/semaine");
+  document.cookie = "projet=" + INFO.projet + "; path=/; max-age=31536000";
+  $("#compte").textContent = PROFIL.compte || PROFIL.prenom || "";
+  document.querySelectorAll("[data-profils]").forEach(b => b.textContent = (PROFIL.compte || PROFIL.prenom || "Profil") + " ▾");
+  // ce qui manque sur l'ordinateur (Claude Code, le compte Claude, ffmpeg…) : la page Installation, avant tout le reste
+  await verifierInstallation();
+  // le premier lancement : « Faisons connaissance » (profil-ui.js), puis le calendrier
+  if (!PROFIL.complet) { ouvrirProfil({ premier: true }); return; }
+  await route();
+}
+document.addEventListener("click", e => { if (e.target.closest("[data-profil]")) ouvrirProfil({}); const m = e.target.closest("[data-profils]"); if (m) menuProfils(m); });
+async function route() {
+  const voulue = new URLSearchParams(location.search).get("semaine");
+  if (voulue) await ouvrirSemaine(voulue, true); else await afficherCalendrier();
+}
+window.onpopstate = () => route().catch(() => {});
+async function ouvrirSemaine(id, depuisUrl) {
+  S = await api("/api/semaine", { id });
+  if (!depuisUrl) history.pushState(null, "", "/?semaine=" + id);
+  $("#vue-calendrier").hidden = true; $("#vue-semaine").hidden = false;
+  document.title = "Storymatic — Semaine du " + libelleSemaine(id);
+  // la vue gardée pour cette semaine (on revient de l'éditeur sur le même jour) ; sinon la préparation tant que rien n'est fait
+  let v = null; try { v = sessionStorage.getItem("vue-" + id); } catch (e) {}
+  VUE = v !== null ? Number(v) : (S.jours.some(j => j.brief || j.pub) ? 0 : -1);
+  // une tâche finie avant qu'on arrive (« Terminé. ») ne s'affiche pas : seulement celle qui tourne, ou qui finit sous nos yeux
+  BANDEAU_VU = S.tache && S.tache.fini ? S.tache.message + "|fini" : null;
+  window.scrollTo(0, 0);
+  rendre(); suivre();
+  if (!BANQUE_CHARGEE) { BANQUE_CHARGEE = true; chargerRessources(); }
+}
+async function afficherCalendrier(pousser) {
+  clearTimeout(SONDE);
+  try { await enregistrerActu(); } catch (e) {}
+  INFO = await api("/api/semaine");
+  if (pousser) history.pushState(null, "", "/");
+  $("#vue-semaine").hidden = true; $("#vue-calendrier").hidden = false;
+  document.title = "Storymatic — Mon année";
+  rendreCalendrier();
+}
+document.addEventListener("click", e => { if (e.target.closest("[data-calendrier]")) afficherCalendrier(true); });
+
+/* ---------- le calendrier ---------- */
+// la prochaine semaine à faire : la première qui n'est pas faite, APRÈS la dernière semaine faite, jamais avant cette semaine
+function prochaineAFaire() {
+  const etat = Object.fromEntries((INFO.semaines || []).map(x => [x.id, x]));
+  const faites = (INFO.semaines || []).filter(x => x.faite).map(x => x.id).sort();
+  const derniere = faites.length ? isoDe(plusJours(dateDe(faites[faites.length - 1]), 7)) : INFO.courante;
+  let d = dateDe(derniere > INFO.courante ? derniere : INFO.courante);
+  for (let k = 0; k < 60; k++, d = plusJours(d, 7)) { const e = etat[isoDe(d)]; if (!e || !e.faite) return isoDe(d); }
+  return INFO.suivante;
+}
+function rendreCalendrier() {
+  const etat = Object.fromEntries((INFO.semaines || []).map(x => [x.id, x])), cible = prochaineAFaire();
+  if (ANNEE === null) ANNEE = dateDe(cible).getFullYear();
+  $("#annee").textContent = ANNEE;
+  const ec = etat[cible], fin = plusJours(dateDe(cible), 6);
+  $("#prochaine").innerHTML = `<div><strong>Prochaine semaine à préparer : du ${libelleSemaine(cible)} au ${fin.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</strong>
+    <p>${ec && (ec.prets || ec.briefs) ? `Commencée : ${ec.prets} jour${ec.prets > 1 ? "s" : ""} prêt${ec.prets > 1 ? "s" : ""} sur ${ec.aFaire}.` : "Rien de fait pour l'instant : écris l'actu, puis « Préparer ma semaine »."}</p></div>
+    <button class="btn fort" data-id="${cible}">${ec && (ec.prets || ec.briefs) ? "Continuer cette semaine →" : "Créer les stories de cette semaine →"}</button>`;
+  const mois = [];
+  for (let d = plusJours(new Date(ANNEE, 0, 1), (8 - new Date(ANNEE, 0, 1).getDay()) % 7); d.getFullYear() === ANNEE; d = plusJours(d, 7)) (mois[d.getMonth()] = mois[d.getMonth()] || []).push(d);
+  const court = d => d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }).replace(".", "");
+  $("#mois").innerHTML = mois.map((l, m) => `<div class="mois"><h3>${new Date(ANNEE, m, 1).toLocaleDateString("fr-FR", { month: "long" })}</h3>` + l.map(d => {
+    const id = isoDe(d), e = etat[id], fin = plusJours(d, 6);
+    const commencee = e && !e.faite && (e.prets || e.briefs);
+    const cls = [e && e.faite ? "faite" : commencee ? "commencee" : id < INFO.courante ? "passee" : "", id === INFO.courante ? "courante" : "", id === cible ? "cible" : ""].join(" ");
+    const st = e && e.faite ? "✓ faite" : commencee ? (e.prets ? e.prets + "/" + e.aFaire + " jours" : "briefs") : id === cible ? "à faire →" : "";
+    return `<button class="sem ${cls}" data-id="${id}" title="Semaine du ${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}"><span class="num">S${numeroSemaine(d)}</span><span class="dates">${d.getDate()} → ${court(fin)}</span><span class="st">${st}</span></button>`;
+  }).join("") + "</div>").join("");
+  document.querySelectorAll("#vue-calendrier [data-id]").forEach(b => b.onclick = () => ouvrirSemaine(b.dataset.id).catch(e => alert(e.message)));
+  const c = document.querySelector("#mois .sem.cible");
+  if (c) requestAnimationFrame(() => c.scrollIntoView({ block: "nearest" }));
+}
+$("#annee-avant").onclick = () => { ANNEE--; rendreCalendrier(); };
+$("#annee-apres").onclick = () => { ANNEE++; rendreCalendrier(); };
+
+/* ---------- une semaine : la barre de gauche ---------- */
+const ETATS = { vide: "à préparer", brief: "brief écrit", plan: "Claude écrit…", compo: "mise en page…", pret: "prêt", erreur: "erreur", repos: "rien ce jour-là" };
+const jourDate = (k, o) => plusJours(dateDe(S.id), k).toLocaleDateString("fr-FR", o);
+const classeEtat = j => j.etat === "pret" ? "ok" : j.etat === "erreur" ? "erreur" : (j.etat === "plan" || j.etat === "compo") ? "encours" : "";
+function rendreNav() {
+  const prets = S.jours.filter(j => j.nb > 0 && j.etat === "pret").length, aFaire = S.jours.filter(j => j.nb > 0).length, occ = enCours();
+  const nStories = S.jours.reduce((a, j) => a + (j.pub ? j.pub.slides.length : 0), 0);
+  $("#nav").innerHTML = `<div class="logo" data-calendrier title="Le calendrier"><img src="logo.png" alt=""><b style="font-weight:inherit">Story<span>matic</span></b></div>
+    <button class="retour" data-calendrier>← Le calendrier</button>
+    <div class="sem-t"><small>Semaine ${numeroSemaine(dateDe(S.id))}</small><b>Du ${jourDate(0, { day: "numeric" })} au ${jourDate(6, { day: "numeric", month: "long" })}</b></div>
+    <div class="barre"><i style="width:${Math.round(100 * prets / Math.max(1, aFaire))}%"></i></div>
+    <div class="barre-t">${prets}/${aFaire} jours prêts${nStories ? " · " + nStories + " stories" : ""}${S.exporte ? " · exportée ✓" : ""}</div>
+    <button class="item prep ${VUE === -1 ? "on" : ""}" data-v="-1"><span class="d">✦</span><span class="r">Préparer la semaine<span>L'actu, ta matière, ta banque</span></span><span class="pt ${S.actu ? "ok" : ""}"></span></button>
+    <div class="sep"></div>
+    ${S.jours.map((j, k) => `<button class="item ${VUE === k ? "on" : ""} ${j.nb === 0 ? "repos" : ""}" data-v="${k}"><span class="d"><small>${jourDate(k, { weekday: "short" }).replace(".", "")}</small>${jourDate(k, { day: "numeric" })}</span>
+      <span class="r">${esc(j.role)}<span>${j.nb === 0 ? "repos" : (j.pub ? j.pub.slides.length : j.nb) + " stories"}${j.heure ? " · " + esc(j.heure) : ""}${j.verrou ? " · 🔒" : ""}</span></span><span class="pt ${classeEtat(j)}" title="${esc(ETATS[j.etat] || j.etat)}"></span></button>`).join("")}
+    <div class="nav-bas">
+      <button class="btn fort" id="preparer" ${occ ? "disabled" : ""}>✦ Préparer ma semaine</button>
+      <div class="ligne"><button class="btn petit" id="briefs" ${occ ? "disabled" : ""} title="Seulement les briefs, sans mettre en page">Briefs seulement</button>
+        <button class="btn petit" id="exporter" ${occ || !S.jours.some(j => j.etat === "pret") ? "disabled" : ""}>📦 Exporter</button></div>
+      ${S.dossierExport ? `<button class="btn petit" id="ouvrir">📂 Ouvrir le dossier à poster</button>` : ""}
+      <button class="studio" data-profils title="Changer de compte, ou en ajouter un">${esc((PROFIL && (PROFIL.compte || PROFIL.prenom)) || "Profil")} ▾</button>
+      <button class="studio" data-profil title="Qui tu es, ce que tu vends, ta semaine type, ton rythme">Mon profil</button>
+    <a class="studio" style="margin-left:0" href="/editeur?da=story" title="Les couleurs, les polices, la charte, les patchs et les GIF de tes stories">Ma DA Story</a>
+    </div>`;
+  document.querySelectorAll("#nav [data-v]").forEach(b => b.onclick = async () => { await enregistrerActu().catch(() => {}); VUE = Number(b.dataset.v); try { sessionStorage.setItem("vue-" + S.id, VUE); } catch (e) {} rendre(); window.scrollTo(0, 0); });
+  $("#preparer").onclick = () => {
+    if (S.jours.some(j => j.pub && !j.verrou) && !confirm("Ça refait la semaine (de nouveaux briefs et de nouvelles stories) — sauf les jours verrouillés 🔒, qui ne bougent pas. On y va ?")) return;
+    lancer(`/api/semaine/${S.id}/preparer`, {});
+  };
+  $("#briefs").onclick = () => lancer(`/api/semaine/${S.id}/briefs`, {});
+  $("#exporter").onclick = () => lancer(`/api/semaine/${S.id}/exporter`, {});
+  if ($("#ouvrir")) $("#ouvrir").onclick = () => api(`/api/semaine/${S.id}/ouvrir`, {});
+}
+
+/* ---------- un jour en grand : ses stories, chacune avec son explication ---------- */
+// le brief de Claude, découpé story par story : « S1 (fond B13, …) : … S2 … »
+function briefParStory(brief) {
+  const r = {}, re = /\bS(\d)\s*(\([^)]*\))?\s*:/g, t = String(brief || ""); let m, prec = null;
+  while ((m = re.exec(t))) { if (prec) r[prec.n].texte = t.slice(prec.fin, m.index).trim(); r[m[1]] = { media: (m[2] || "").replace(/[()]/g, ""), texte: "" }; prec = { n: m[1], fin: re.lastIndex }; }
+  if (prec) r[prec.n].texte = t.slice(prec.fin).trim();
+  return r;
+}
+function rendreJour(k) {
+  const j = S.jours[k], p = j.pub, n = p ? p.composees : 0, b = briefParStory(j.brief), occ = enCours(), c = classeEtat(j);
+  const lien = p && n ? `/editeur?pub=${p.id}&semaine=${S.id}` : "";
+  const opts = [0, 1, 2, 3, 4, 5, 6].map(x => `<option value="${x}" ${x === j.nb ? "selected" : ""}>${x}</option>`).join("");
+  const nbS = p ? p.slides.length : 0;
+  return `<span class="role">${esc(j.role)}</span>
+    <div class="jt"><h1>${esc((j.date || "").replace(/^./, x => x.toUpperCase()))}</h1>
+      <div class="outils">
+        ${lien ? `<a class="btn fort" href="${lien}">✎ Ouvrir dans l'éditeur</a>` : ""}
+        ${p && n ? `<button class="btn" data-action="verrou" ${occ ? "disabled" : ""}>${j.verrou ? "🔓 Déverrouiller" : "🔒 Verrouiller"}</button>` : ""}
+        <button class="btn ${p ? "" : "fort"}" data-action="refaire" ${!j.brief || !j.nb || j.verrou || occ ? "disabled" : ""} title="${!j.brief ? "Écris d'abord le brief (ou « Préparer ma semaine »)" : j.verrou ? "Déverrouille d'abord ce jour" : ""}">↻ ${p ? "Refaire ce jour" : "Faire ce jour"}</button>
+        ${p && n && !j.verrou ? `<button class="btn" data-action="corriger" ${occ ? "disabled" : ""}>💬 Corriger…</button>` : ""}
+      </div></div>
+    <div class="puces">
+      <span class="${c}">${j.etat === "pret" ? "✓ prêt" : esc(ETATS[j.etat] || j.etat)}</span>${j.verrou ? '<span class="ok">🔒 verrouillé</span>' : ""}
+      <label>📱 <select data-champ="nb">${opts}</select> stories</label>
+      <label>🕐 publiées à <input type="time" data-champ="heure" value="${esc(j.heure)}"></label>
+      ${j.appel ? `<span>💬 ${esc(j.appel)}</span>` : ""}
+      ${j.medias && j.medias.length ? `<span title="Les images que Claude a prévues pour ce jour">🖼 ${esc(j.medias.join(", "))}</span>` : ""}
+    </div>
+    ${j.erreur ? `<div class="erreur-txt">${esc(j.erreur)}</div>` : ""}
+    ${p && n ? `<div class="rang ${nbS >= 6 ? "r6" : nbS === 5 ? "r5" : ""}">${p.slides.map((s, i) => `<div class="carte-s">
+        <a class="tel" href="${lien}" title="Ouvrir dans l'éditeur"><iframe loading="lazy" tabindex="-1" src="/pub/${INFO.projet}/${p.id}/slide/${i + 1}?video=1"></iframe></a>
+        <span class="n-s">Story ${i + 1}</span><b>${propre(s.titre)}</b><p>${propre((b[i + 1] || {}).texte || s.texte)}</p>
+        ${s.sticker ? `<span class="stk">+ sticker : ${esc(s.sticker)}</span>` : ""}${(b[i + 1] || {}).media ? `<span class="media">${esc(b[i + 1].media)}</span>` : ""}</div>`).join("")}</div>`
+      : `<div class="vide-j"><b>${j.nb === 0 ? "Pas de story ce jour-là" : j.etat === "plan" || j.etat === "compo" ? "Claude prépare ce jour…" : j.brief ? "Le brief est écrit" : "Ce jour n'est pas encore préparé"}</b>${j.nb === 0 ? "Choisis un nombre de stories au-dessus pour en faire." : j.etat === "plan" || j.etat === "compo" ? "Les stories apparaîtront ici dans quelques minutes." : j.brief ? "« Faire ce jour » pour que Claude écrive et mette en page ses stories." : "« Préparer ma semaine » (à gauche) écrit les briefs de tous les jours, puis les stories."}</div>`}
+    <div class="consigne"><label>Une consigne pour ce jour<span>facultatif — « parle de la leçon 5.3 », « montre la capture M2 »… puis « Refaire ce jour »</span></label>
+      <textarea rows="2" data-champ="consigne" placeholder="Ta consigne pour Claude">${esc(j.consigne || "")}</textarea>
+      <button class="btn" data-action="refaire" ${!j.brief || !j.nb || j.verrou || occ ? "disabled" : ""}>↻ ${p ? "Refaire" : "Faire"} avec</button></div>
+    <details class="brief" ${!p && j.brief ? "open" : ""}><summary>Le brief de Claude</summary><p>Ce que Claude a prévu pour ce jour, story par story. Tu peux le retoucher, puis « Refaire ce jour ».</p>
+      <textarea rows="6" data-champ="brief" placeholder="Le brief du jour, écrit par Claude quand tu prépares la semaine.">${esc(j.brief)}</textarea></details>`;
+}
+function brancherJour(k) {
+  const jour = S.jours[k].jour, z = $("#contenu");
+  z.querySelectorAll("[data-champ]").forEach(el => {
+    el.onfocus = () => SAISIE = true;
+    el.onblur = () => SAISIE = false;
+    el.onchange = async () => {
+      const x = { jour }; x[el.dataset.champ] = el.dataset.champ === "nb" ? Number(el.value) : el.value;
+      S = await api(`/api/semaine/${S.id}`, { jours: [x] });
+      if (el.dataset.champ === "nb") rendre(); else rendreNav();
+    };
+  });
+  const ver = z.querySelector('[data-action="verrou"]');
+  if (ver) ver.onclick = async () => { const j = S.jours[k]; S = await api(`/api/semaine/${S.id}/verrou/${jour}`, { verrou: !j.verrou }); rendre(); };
+  z.querySelectorAll('[data-action="refaire"]').forEach(b => b.onclick = async () => {
+    // la consigne et le brief tapés partent avec (ils sont enregistrés d'abord)
+    const champs = {}; z.querySelectorAll("textarea[data-champ]").forEach(t => champs[t.dataset.champ] = t.value);
+    try { S = await api(`/api/semaine/${S.id}`, { jours: [Object.assign({ jour }, champs)] }); } catch (e) {}
+    lancer(`/api/semaine/${S.id}/jour/${jour}`, {});
+  });
+  const cor = z.querySelector('[data-action="corriger"]');
+  if (cor) cor.onclick = () => {
+    const r = prompt("Qu'est-ce que tu veux changer dans les stories du " + jour + " ?");
+    if (r && r.trim()) lancer(`/api/semaine/${S.id}/jour/${jour}`, { remarque: r.trim() });
+  };
+}
+
+/* ---------- préparer la semaine : l'actu, la matière, la banque, les captures et les Reels ---------- */
+function rendrePrep() {
+  return `<span class="role">Avant de lancer Claude</span><div class="jt"><h1>Préparer la semaine</h1></div>
+    <p class="sous" style="margin:12px 0 22px">Écris l'actu et dépose ta matière, puis « Préparer ma semaine » (à gauche) : Claude écrit chaque jour selon ta semaine type et le studio le met en page à ta DA. Rien n'est généré, rien ne coûte de crédit.</p>
+    <div class="prep-grille">
+      <div class="bloc"><h2>L'actu de la semaine</h2><p class="aide">Ce qui s'est passé et ce qui arrive : une nouvelle leçon, un retour d'élève, un palier, une nouveauté du studio, ton humeur… Les stories n'utilisent QUE les faits écrits ici ou dans ta matière.</p>
+        <textarea id="actu" placeholder="Ex. : un client m'a écrit qu'il a doublé ses ventes ; je sors une nouvelle offre jeudi ; on a passé les 5 000 abonnés ; grosse fatigue cette semaine…">${esc(S.actu || "")}</textarea></div>
+      <div class="bloc"><h2>Ta matière</h2><p class="aide">Les captures et preuves à montrer CETTE semaine (un message de client, des stats, une nouveauté). Une note par image aide Claude à la placer au bon jour.</p>
+        <div class="depot" id="depot-matiere">⬇ Glisse tes images ici<br><small style="color:var(--texte-3)">ou clique pour les choisir</small></div>
+        <div class="vignettes" id="matiere">${S.matiere.map((m, i) => `<div class="vig"><img src="/semaine-fichier/matiere/${S.id}/${encodeURIComponent(m.fichier)}" alt=""><span class="cle">M${i + 1}</span>
+          <button class="x" data-retirer="${esc(m.fichier)}" title="Retirer">×</button><textarea data-note="${esc(m.fichier)}" placeholder="Ce qu'on y voit…">${esc(m.note)}</textarea></div>`).join("")}</div></div>
+    </div>
+    <div class="tuiles">
+      <button class="tuile ${TUILE === "banque" ? "on" : ""}" data-tuile="banque"><div class="mosa">${BANQUE.slice(0, 8).map(x => `<img src="/semaine-fichier/banque/${encodeURIComponent(x.fichier)}" alt="">`).join("")}</div>
+        <b>Ma banque</b><span>${BANQUE.length ? BANQUE.length + " photos de ton quotidien" + (BANQUE.some(x => !x.description) ? " · " + BANQUE.filter(x => !x.description).length + " à décrire" : "") : "vide — ajoute tes images"}</span></button>
+      <button class="tuile ${TUILE === "captures" ? "on" : ""}" data-tuile="captures"><div class="mosa m2">${CAPTURES.slice(0, 4).map(x => `<img src="/semaine-fichier/captures/${encodeURIComponent(x.fichier)}" alt="">`).join("")}</div>
+        <b>Mes captures</b><span>${CAPTURES.length ? CAPTURES.length + " écran" + (CAPTURES.length > 1 ? "s" : "") + ", posés quand une story en parle" : "vide — ton produit, tes outils"}</span></button>
+      <button class="tuile ${TUILE === "reels" ? "on" : ""}" data-tuile="reels"><div class="mosa m1">🎬</div><b>Mes vidéos</b><span>${VIDEOS.length ? VIDEOS.length + " vidéo" + (VIDEOS.length > 1 ? "s" : "") + ", montrées dès qu'une story en parle" : "vide — tes Reels, tes résultats"}</span></button>
+    </div>
+    <div class="panneau bloc" id="panneau" ${TUILE ? "" : "hidden"}>${panneau()}</div>`;
+}
+function panneau() {
+  if (TUILE === "banque") return `<h2>Ma banque</h2><p class="aide">Les photos de fond de tes stories, dans lesquelles l'outil pioche chaque semaine (${PROFIL && PROFIL.presence === "jamais" ? "ton quotidien, sans toi dessus" : PROFIL && PROFIL.presence === "avatar" ? "les images de ton avatar IA et ton quotidien" : "toi, ton travail, ton quotidien"}). Dépose-les, puis « Décrire » : Claude les regarde et écrit une ligne pour chacune (gratuit).</p>
+    <div class="actions"><button class="btn petit" id="banque-ajouter">+ Ajouter des images</button><button class="btn petit" id="banque-decrire">✦ Décrire les nouvelles images</button></div>
+    <div class="vignettes" id="banque">${BANQUE.map((x, i) => `<div class="vig"><img src="/semaine-fichier/banque/${encodeURIComponent(x.fichier)}" alt=""><span class="cle">B${i + 1}</span>
+      <button class="x" data-retirer-b="${esc(x.fichier)}" title="Retirer">×</button><textarea data-desc="${esc(x.fichier)}" placeholder="À décrire…">${esc(x.description)}</textarea></div>`).join("")}</div>`;
+  if (TUILE === "captures") return `<h2>Mes captures</h2><p class="aide">Des captures de ton produit, de tes outils, de tes écrans : Claude les pose sur les stories qui en parlent (jamais en fond). Dépose-les, puis « Décrire » : Claude écrit à quoi sert chacune (gratuit).</p>
+    <div class="actions"><button class="btn petit" id="captures-ajouter">+ Ajouter des captures</button><button class="btn petit" id="captures-decrire">✦ Décrire les nouvelles</button><button class="btn petit" id="captures-ouvrir">📂 Le dossier</button></div>
+    <div class="vignettes">${CAPTURES.map((c, i) => `<div class="vig" style="width:220px"><img style="height:138px" src="/semaine-fichier/captures/${encodeURIComponent(c.fichier)}" alt=""><span class="cle">C${i + 1}</span>
+      <button class="x" data-retirer-r="captures" data-f="${esc(c.fichier)}" title="Retirer">×</button><textarea data-desc-r="captures" data-f="${esc(c.fichier)}" placeholder="À décrire…">${esc(c.description)}</textarea></div>`).join("")}</div>`;
+  if (TUILE === "reels") return `<h2>Mes vidéos</h2><p class="aide">Tes Reels, tes résultats, tes démos : dès qu'une story parle de ce qu'une vidéo montre, Claude la pose en grand (la story sort en vidéo). « Décrire » : Claude regarde trois images de chacune (gratuit).</p>
+    <div class="actions"><button class="btn petit" id="videos-ajouter">+ Ajouter des vidéos</button><button class="btn petit" id="videos-decrire">✦ Décrire les nouvelles</button><button class="btn petit" id="videos-ouvrir">📂 Le dossier</button></div>
+    <div class="vignettes">${VIDEOS.map((v, i) => `<div class="vig" style="width:160px"><video style="width:100%;height:240px;object-fit:cover;display:block;background:#000" src="/semaine-fichier/videos/${encodeURIComponent(v.fichier)}#t=0.5" muted preload="metadata"></video><span class="cle">V${i + 1}</span>
+      <button class="x" data-retirer-r="videos" data-f="${esc(v.fichier)}" title="Retirer">×</button><textarea data-desc-r="videos" data-f="${esc(v.fichier)}" placeholder="À décrire…">${esc(v.description)}</textarea></div>`).join("")}</div>`;
+  return "";
+}
+function brancherPrep() {
+  const t = $("#actu");
+  t.onfocus = () => SAISIE = true;
+  t.onblur = async () => { SAISIE = false; await enregistrerActu(); rendreNav(); };
+  brancherDepot($("#depot-matiere"), $("#fichier-matiere"), async fichiers => {
+    await enregistrerActu();
+    for (const f of fichiers) S = await api(`/api/semaine/${S.id}/matiere?nom=${encodeURIComponent(f.name)}`, f, true);
+    rendre();
+  });
+  document.querySelectorAll("#matiere [data-retirer]").forEach(b => b.onclick = async () => { S = await api(`/api/semaine/${S.id}/matiere-retirer`, { fichier: b.dataset.retirer }); rendre(); });
+  document.querySelectorAll("#matiere [data-note]").forEach(x => { x.onfocus = () => SAISIE = true; x.onblur = () => SAISIE = false; x.onchange = async () => { S = await api(`/api/semaine/${S.id}`, { matiere: [{ fichier: x.dataset.note, note: x.value }] }); }; });
+  document.querySelectorAll("[data-tuile]").forEach(b => b.onclick = async () => { await enregistrerActu().catch(() => {}); TUILE = TUILE === b.dataset.tuile ? null : b.dataset.tuile; rendre();
+    if (TUILE) $("#panneau").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  if ($("#banque-ajouter")) $("#banque-ajouter").onclick = () => $("#fichier-banque").click();
+  if ($("#banque-decrire")) $("#banque-decrire").onclick = async () => {
+    const b = $("#banque-decrire"); b.disabled = true; b.textContent = "Claude regarde les images…";
+    try { BANQUE = await api("/api/banque/decrire", {}); rendre(); } catch (e) { alert(e.message); b.disabled = false; b.textContent = "✦ Décrire les nouvelles images"; }
+  };
+  document.querySelectorAll("[data-retirer-b]").forEach(x => x.onclick = async () => { if (confirm("Retirer cette image de la banque ?")) { BANQUE = await api("/api/banque/" + encodeURIComponent(x.dataset.retirerB), { retirer: true }); rendre(); } });
+  document.querySelectorAll("[data-desc]").forEach(x => { x.onfocus = () => SAISIE = true; x.onblur = () => SAISIE = false; x.onchange = async () => { BANQUE = await api("/api/banque/" + encodeURIComponent(x.dataset.desc), { description: x.value }); }; });
+  if ($("#captures-ouvrir")) $("#captures-ouvrir").onclick = () => api("/api/captures/ouvrir", {});
+  if ($("#videos-ouvrir")) $("#videos-ouvrir").onclick = () => api("/api/videos/ouvrir", {});
+  // mes captures, mes vidéos : déposer, décrire (Claude), retoucher, retirer
+  const rayon = r => r === "captures" ? (l => CAPTURES = l) : (l => VIDEOS = l);
+  for (const r of ["captures", "videos"]) {
+    const aj = $("#" + r + "-ajouter"); if (aj) aj.onclick = () => choisirFichiers(r === "captures" ? "image/*" : "video/*", async fichiers => {
+      aj.disabled = true; aj.textContent = "Envoi…";
+      for (const f of fichiers) rayon(r)(await api(`/api/${r}/deposer?nom=${encodeURIComponent(f.name)}`, f, true));
+      rendre(); });
+    const de = $("#" + r + "-decrire"); if (de) de.onclick = async () => { de.disabled = true; de.textContent = "Claude regarde…";
+      try { rayon(r)(await api(`/api/${r}/decrire`, {})); rendre(); } catch (e) { alert(e.message); de.disabled = false; de.textContent = "✦ Décrire les nouvelles"; } };
+  }
+  document.querySelectorAll("[data-retirer-r]").forEach(x => x.onclick = async () => { if (confirm("Retirer ce fichier ? (il part dans la corbeille du dossier)")) { rayon(x.dataset.retirerR)(await api(`/api/${x.dataset.retirerR}/fichier`, { fichier: x.dataset.f, retirer: true })); rendre(); } });
+  document.querySelectorAll("[data-desc-r]").forEach(x => { x.onfocus = () => SAISIE = true; x.onblur = () => SAISIE = false; x.onchange = async () => { rayon(x.dataset.descR)(await api(`/api/${x.dataset.descR}/fichier`, { fichier: x.dataset.f, description: x.value })); }; });
+}
+$("#fichier-banque").onchange = async () => {
+  for (const f of $("#fichier-banque").files) BANQUE = await api(`/api/banque/deposer?nom=${encodeURIComponent(f.name)}`, f, true);
+  $("#fichier-banque").value = ""; rendre();
+};
+function choisirFichiers(accept, fait) {
+  const i = document.createElement("input"); i.type = "file"; i.accept = accept; i.multiple = true;
+  i.onchange = () => { if (i.files.length) fait([...i.files]); }; i.click();
+}
+function brancherDepot(zone, champ, envoyer) {
+  zone.onclick = () => champ.click();
+  champ.onchange = () => envoyer([...champ.files]).then(() => champ.value = "");
+  zone.ondragover = e => { e.preventDefault(); zone.classList.add("survol"); };
+  zone.ondragleave = () => zone.classList.remove("survol");
+  zone.ondrop = e => { e.preventDefault(); zone.classList.remove("survol"); envoyer([...e.dataTransfer.files].filter(f => f.type.startsWith("image/"))); };
+}
+async function chargerRessources() {
+  try { [BANQUE, CAPTURES, VIDEOS] = await Promise.all([api("/api/banque"), api("/api/captures"), api("/api/videos")]); } catch (e) {}
+  if (S && VUE === -1 && !SAISIE) rendre();
+}
+
+/* ---------- le rendu, la tâche en cours ---------- */
+function rendre() {
+  rendreNav();
+  if (VUE === null || VUE >= S.jours.length) VUE = -1;
+  $("#contenu").innerHTML = VUE === -1 ? rendrePrep() : rendreJour(VUE);
+  if (VUE === -1) brancherPrep(); else brancherJour(VUE);
+  ajusterTels();
+  bandeau();
+}
+function bandeau() {
+  const t = S.tache, b = $("#bandeau"), cle = t ? t.message + (t.fini ? "|fini" : "") : null;
+  const vu = !!t && BANDEAU_VU !== cle;
+  b.className = "bandeau" + (vu ? " vu" : "") + (t && t.fini ? (/^Erreur/.test(t.message) ? " erreur" : " fini") : "");
+  $("#bandeau-txt").textContent = t ? t.message : "";
+}
+$("#bandeau-x").onclick = () => { const t = S && S.tache; BANDEAU_VU = t ? t.message + (t.fini ? "|fini" : "") : null; bandeau(); };
+async function lancer(url, corps) {
+  try { await enregistrerActu(); BANDEAU_VU = null; S = await api(url, corps); rendre(); suivre(); } catch (e) { alert(e.message); }
+}
+function suivre() {
+  clearTimeout(SONDE);
+  if (!enCours()) return;
+  SONDE = setTimeout(async () => {
+    try {
+      const f = await api("/api/semaine/" + S.id), sig = x => JSON.stringify(x.jours.map(j => [j.etat, j.pub && j.pub.composees, j.brief, j.verrou]));
+      const change = sig(f) !== sig(S); S = f;
+      if (!SAISIE && (change || !enCours())) rendre(); else { bandeau(); rendreNav(); }
+    } catch (e) {}
+    suivre();
+  }, 2500);
+}
+async function enregistrerActu() {
+  const t = $("#actu");
+  if (S && t && t.value !== (S.actu || "")) S = await api(`/api/semaine/${S.id}`, { actu: t.value });
+}
+window.addEventListener("beforeunload", () => { const t = $("#actu"); if (S && t && t.value !== (S.actu || "")) navigator.sendBeacon && fetch(`/api/semaine/${S.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actu: t.value }), keepalive: true }); });
+demarrer().catch(e => { $("#vue-semaine").hidden = false; $("#bandeau").className = "bandeau vu erreur"; $("#bandeau-txt").textContent = e.message; });
+</script>
+</body>
+</html>
